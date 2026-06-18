@@ -34,8 +34,8 @@
   --color-surface: var(--surface);
   --color-surface-foreground: var(--surface-foreground);
 
-  --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "Geist Mono", ui-monospace, monospace;
+  --font-sans: "Cairo", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Cairo", ui-monospace, monospace;
 
   --shadow-card:
     0 0 0 1px oklch(0 0 0 / 0.06),
@@ -90,6 +90,7 @@
   }
   html {
     scroll-behavior: smooth;
+    direction: rtl;
   }
   body {
     background: var(--color-background);

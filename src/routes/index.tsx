@@ -12,17 +12,20 @@ import {
 } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import {
-  ArrowRight,
+  ArrowLeft,
   Sparkles,
-  Code2,
-  GitBranch,
-  Zap,
-  Shield,
-  Terminal,
+  BookOpen,
+  BookMarked,
+  ScrollText,
+  Library,
+  Star,
+  GraduationCap,
+  Crown,
   Check,
-  Github,
+  Facebook,
   Twitter,
 } from "lucide-react";
+import logoSrc from "../assets/logo.png";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -110,7 +113,7 @@ function Counter({ to, suffix = "" }: { to: number; suffix?: string }) {
   );
 }
 
-/* ---------- Cursor blob (global) ---------- */
+/* ---------- Cursor blob ---------- */
 
 function CursorBlob() {
   const x = useSpring(useMotionValue(-200), { stiffness: 120, damping: 20, mass: 0.6 });
@@ -134,6 +137,19 @@ function CursorBlob() {
   );
 }
 
+/* ---------- Scroll progress ---------- */
+
+function ScrollProgress() {
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, { stiffness: 120, damping: 24, mass: 0.4 });
+  return (
+    <motion.div
+      style={{ scaleX }}
+      className="fixed left-0 right-0 top-0 z-[60] h-0.5 origin-right bg-foreground"
+    />
+  );
+}
+
 /* ---------- Nav ---------- */
 
 function Nav() {
@@ -141,6 +157,8 @@ function Nav() {
   const width = useTransform(scrollY, [0, 200], ["min(960px, calc(100% - 2rem))", "min(720px, calc(100% - 2rem))"]);
   const padY = useTransform(scrollY, [0, 200], [8, 6]);
   const bg = useTransform(scrollY, [0, 200], ["rgba(248,250,252,0.6)", "rgba(248,250,252,0.85)"]);
+
+  const links = ["الرئيسية", "البرامج", "الأسعار", "اتصل بنا"];
 
   return (
     <motion.header
@@ -155,21 +173,18 @@ function Nav() {
         className="flex items-center justify-between rounded-full border border-border/70 px-2 pl-5 shadow-[var(--shadow-pill)] backdrop-blur-xl"
       >
         <a href="#" className="flex items-center gap-2 text-sm font-semibold tracking-tight">
-          <motion.span
-            whileHover={{ rotate: 90 }}
-            transition={{ duration: 0.5, ease }}
-            className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-foreground text-background"
-          >
-            <Code2 className="h-3.5 w-3.5" />
-          </motion.span>
-          Codeforge
+          <img
+            src={logoSrc}
+            alt="أكاديمية القرآن"
+            className="h-8 w-auto"
+          />
         </a>
         <ul className="hidden items-center gap-1 text-sm text-muted-foreground md:flex">
-          {["Features", "Pricing", "Docs", "Blog"].map((l) => (
+          {links.map((l) => (
             <li key={l}>
               <motion.a
                 whileHover={{ y: -1 }}
-                href={`#${l.toLowerCase()}`}
+                href={`#${l}`}
                 className="relative rounded-full px-3 py-1.5 transition-colors hover:text-foreground"
               >
                 {l}
@@ -182,7 +197,7 @@ function Nav() {
             href="#"
             className="inline-flex items-center gap-1.5 rounded-full bg-foreground px-3.5 py-1.5 text-sm font-medium text-background"
           >
-            Get started <ArrowRight className="h-3.5 w-3.5" />
+            ابدأ الآن <ArrowLeft className="h-3.5 w-3.5" />
           </a>
         </Magnetic>
       </motion.nav>
@@ -207,7 +222,6 @@ function Hero() {
   const blur = useTransform(scrollYProgress, [0, 1], [0, 6]);
   const filter = useMotionTemplate`blur(${blur}px)`;
 
-  // mouse-tracked spotlight
   const mx = useMotionValue(50);
   const my = useMotionValue(30);
   const spotlight = useMotionTemplate`radial-gradient(600px circle at ${mx}% ${my}%, rgba(15,23,42,0.07), transparent 60%)`;
@@ -245,15 +259,15 @@ function Hero() {
           >
             <Sparkles className="h-3 w-3" />
           </motion.span>
-          Introducing Codeforge 2.0
-          <ArrowRight className="h-3 w-3" />
+          أكاديمية قرآنية رائدة
+          <ArrowLeft className="h-3 w-3" />
         </motion.a>
 
         <h1 className="mt-6 text-5xl font-semibold leading-[0.95] tracking-[-0.03em] text-foreground sm:text-6xl md:text-7xl">
-          <WordReveal text="Ship production code" />
+          <WordReveal text="تعلم القرآن الكريم" />
           <br />
-          <WordReveal text="10x faster" className="text-muted-foreground" />
-          <WordReveal text=" with AI" />
+          <WordReveal text="بالتجويد والتدبر" className="text-muted-foreground" />
+          <WordReveal text="مع نخبة المعلمين" />
         </h1>
 
         <motion.p
@@ -263,8 +277,8 @@ function Hero() {
           transition={{ duration: 0.9, ease, delay: 0.4 }}
           className="mx-auto mt-7 max-w-xl text-lg leading-relaxed text-muted-foreground"
         >
-          Your AI coding partner writes, reviews, and refactors code instantly.
-          Build features in minutes, not days.
+          رحلتك مع القرآن تبدأ هنا — برامج تعليمية متكاملة للحفظ والتجويد والتفسير
+          بإشراف نخبة من المعلمين المجازين بأعلى الأسانيد.
         </motion.p>
 
         <motion.div
@@ -279,13 +293,13 @@ function Hero() {
               href="#"
               className="group inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background"
             >
-              Start building free
+              ابدأ رحلتك المجانية
               <motion.span
                 className="inline-flex"
-                whileHover={{ x: 4 }}
+                whileHover={{ x: -4 }}
                 transition={{ type: "spring", stiffness: 400, damping: 15 }}
               >
-                <ArrowRight className="h-4 w-4" />
+                <ArrowLeft className="h-4 w-4" />
               </motion.span>
             </a>
           </Magnetic>
@@ -294,20 +308,20 @@ function Hero() {
               href="#"
               className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-5 py-2.5 text-sm font-medium text-foreground shadow-[var(--shadow-pill)]"
             >
-              <Terminal className="h-4 w-4" /> npx codeforge init
+              <BookOpen className="h-4 w-4" /> تعرف على برامجنا
             </a>
           </Magnetic>
         </motion.div>
 
-        <TerminalPreview />
+        <QuranPreview />
       </motion.div>
     </section>
   );
 }
 
-/* ---------- Terminal with 3D tilt + typewriter ---------- */
+/* ---------- Quran Preview Card ---------- */
 
-function TerminalPreview() {
+function QuranPreview() {
   const ref = useRef<HTMLDivElement>(null);
   const rx = useSpring(useMotionValue(0), { stiffness: 150, damping: 18 });
   const ry = useSpring(useMotionValue(0), { stiffness: 150, damping: 18 });
@@ -324,12 +338,11 @@ function TerminalPreview() {
     ry.set(0);
   }
 
-  const lines = [
-    { p: "$", c: "codeforge generate", t: "" },
-    { p: "›", c: "Analyzing repository…", t: "context loaded" },
-    { p: "›", c: "Drafting PR: add Stripe checkout", t: "12 files" },
-    { p: "✓", c: "Tests passing", t: "94% coverage" },
-    { p: "✓", c: "Pushed branch", t: "feat/checkout" },
+  const verses = [
+    { text: "الرَّحْمَٰنُ ﴿١﴾", highlight: false },
+    { text: "عَلَّمَ الْقُرْآنَ ﴿٢﴾", highlight: true },
+    { text: "خَلَقَ الْإِنسَانَ ﴿٣﴾", highlight: false },
+    { text: "عَلَّمَهُ الْبَيَانَ ﴿٤﴾", highlight: false },
   ];
 
   return (
@@ -347,10 +360,10 @@ function TerminalPreview() {
           rotateY: ry,
           transformStyle: "preserve-3d",
         }}
-        className="overflow-hidden rounded-2xl border border-border bg-card text-left shadow-[var(--shadow-elevated)]"
+        className="overflow-hidden rounded-2xl border border-border bg-card text-right shadow-[var(--shadow-elevated)]"
       >
         <div className="flex items-center gap-2 border-b border-border bg-secondary/60 px-4 py-2.5">
-          {["#f87171", "#fbbf24", "#34d399"].map((c, i) => (
+          {["#29477B", "#489C9D", "#6CC6B8"].map((c, i) => (
             <motion.span
               key={i}
               initial={{ scale: 0 }}
@@ -361,39 +374,32 @@ function TerminalPreview() {
               style={{ background: c }}
             />
           ))}
-          <span className="ml-3 text-xs text-muted-foreground font-mono">
-            ~/app — codeforge
+          <span className="mr-3 text-xs text-muted-foreground">
+            القرآن الكريم — سورة الرحمن
           </span>
         </div>
-        <div className="p-6 font-mono text-sm">
-          {lines.map((l, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, x: -8 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.5 + i * 0.18, duration: 0.5, ease }}
-              className="flex items-baseline gap-3 py-1"
-            >
-              <span className="w-3 text-muted-foreground">{l.p}</span>
-              <span className="text-foreground">{l.c}</span>
-              {l.t && (
-                <motion.span
-                  initial={{ opacity: 0 }}
-                  whileInView={{ opacity: 1 }}
-                  transition={{ delay: 0.9 + i * 0.18 }}
-                  viewport={{ once: true }}
-                  className="ml-auto text-xs text-muted-foreground"
-                >
-                  {l.t}
-                </motion.span>
-              )}
-            </motion.div>
-          ))}
+        <div className="p-8 leading-loose text-right">
+          <p className="text-xl md:text-2xl text-foreground">
+            <span className="text-primary font-semibold">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</span>
+          </p>
+          <div className="mt-4">
+            {verses.map((l, i) => (
+              <motion.p
+                key={i}
+                initial={{ opacity: 0, x: -8 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.5 + i * 0.18, duration: 0.5, ease }}
+                className={`text-lg md:text-xl ${l.highlight ? "text-secondary font-semibold" : "text-foreground/80"}`}
+              >
+                {l.text}
+              </motion.p>
+            ))}
+          </div>
           <motion.span
             animate={{ opacity: [1, 0, 1] }}
             transition={{ duration: 1, repeat: Infinity }}
-            className="inline-block h-4 w-1.5 translate-y-0.5 bg-foreground"
+            className="inline-block h-5 w-1.5 translate-y-0.5 bg-foreground"
           />
         </div>
       </motion.div>
@@ -401,14 +407,14 @@ function TerminalPreview() {
   );
 }
 
-/* ---------- Marquee logos ---------- */
+/* ---------- Logos / Institutions ---------- */
 
 function Logos() {
-  const logos = ["Linear", "Vercel", "Stripe", "Notion", "Figma", "Raycast", "Supabase", "Anthropic"];
+  const logos = ["جامعة الأزهر", "مجمع الملك فهد", "الهيئة العالمية", "رابطة العالم الإسلامي", "جامعة أم القرى", "جامعة الإمام", "وزارة الشؤون الإسلامية", "الندوة العالمية"];
   return (
     <section className="border-y border-border/60 bg-secondary/30 py-12 overflow-hidden">
       <p className="text-center text-xs font-medium uppercase tracking-widest text-muted-foreground">
-        Trusted by engineering teams at
+        يشرف على تعليمنا
       </p>
       <div className="relative mt-6 mx-auto max-w-6xl [mask-image:linear-gradient(to_right,transparent,black_15%,black_85%,transparent)]">
         <motion.div
@@ -430,15 +436,15 @@ function Logos() {
   );
 }
 
-/* ---------- Features (interactive grid) ---------- */
+/* ---------- Features ---------- */
 
 const features = [
-  { icon: Zap, title: "Instant generation", body: "Describe the change. Codeforge writes the diff, runs tests, and opens the PR in seconds." },
-  { icon: GitBranch, title: "Aware of your repo", body: "Trained on your codebase conventions, types, and APIs. Suggestions actually fit." },
-  { icon: Shield, title: "Reviews that catch bugs", body: "Static analysis plus reasoning — flags edge cases your linter never will." },
-  { icon: Code2, title: "Refactor at scale", body: "Rename across services, migrate APIs, modernize stacks. One command, every file." },
-  { icon: Terminal, title: "Lives in your terminal", body: "CLI, editor, and CI. No new app to learn — Codeforge meets you where you work." },
-  { icon: Sparkles, title: "Tuned for production", body: "Type-safe, tested, and documented output. The kind of code you'd actually merge." },
+  { icon: BookOpen, title: "تحفيظ القرآن", body: "برامج متدرجة لحفظ القرآن الكريم مع متابعة شخصية وتسميع دوري يشرف عليها معلمون مجازون." },
+  { icon: ScrollText, title: "أحكام التجويد", body: "تعلم أحكام التجويد تطبيقياً بأسلوب مبسط مع قراء مجازين يتابعون تلاوتك ويصححونها." },
+  { icon: Library, title: "تفسير القرآن", body: "فهم معاني القرآن الكريم من خلال تفسير السلف الصالح ودراسة أسباب النزول." },
+  { icon: Star, title: "التدبر", body: "دورات متخصصة في تدبر آيات القرآن الكريم وربطها بالواقع المعاصر." },
+  { icon: GraduationCap, title: "الإجازة", body: "طرق الإجازة بالسند المتصل إلى النبي ﷺ مع متابعة دقيقة حتى الإتقان." },
+  { icon: Crown, title: "علوم القرآن", body: "دراسة علوم القرآن كالناسخ والمنسوخ والمكي والمدني وأصول التفسير." },
 ];
 
 function FeatureCard({ f, i }: { f: (typeof features)[number]; i: number }) {
@@ -479,7 +485,7 @@ function FeatureCard({ f, i }: { f: (typeof features)[number]; i: number }) {
 
 function Features() {
   return (
-    <section id="features" className="py-28 md:py-36">
+    <section id="البرامج" className="py-28 md:py-36">
       <div className="container mx-auto max-w-6xl px-6">
         <div className="mx-auto max-w-2xl text-center">
           <motion.p
@@ -489,10 +495,10 @@ function Features() {
             transition={{ duration: 0.6, ease }}
             className="text-xs font-medium uppercase tracking-widest text-muted-foreground"
           >
-            Features
+            برامجنا
           </motion.p>
           <h2 className="mt-3 text-4xl font-semibold tracking-[-0.03em] sm:text-5xl">
-            <WordReveal text="Everything you need to ship." />
+            <WordReveal text="برامج تعليمية متكاملة." />
           </h2>
           <motion.p
             initial={{ opacity: 0 }}
@@ -501,7 +507,7 @@ function Features() {
             transition={{ duration: 0.8, delay: 0.4 }}
             className="mt-4 text-lg text-muted-foreground"
           >
-            A toolkit built for the way modern teams actually write software.
+            منهج علمي متكامل يجمع بين الحفظ والتجويد والفهم والتدبر.
           </motion.p>
         </div>
 
@@ -511,13 +517,12 @@ function Features() {
           ))}
         </div>
 
-        {/* Stats strip */}
         <div className="mt-20 grid grid-cols-2 gap-8 rounded-3xl border border-border bg-card p-10 shadow-[var(--shadow-card)] sm:grid-cols-4">
           {[
-            { v: 10, s: "x", l: "Faster shipping" },
-            { v: 94, s: "%", l: "Test coverage" },
-            { v: 12000, s: "+", l: "Repos powered" },
-            { v: 99, s: ".9%", l: "Uptime SLA" },
+            { v: 5000, s: "+", l: "طالب مسجل" },
+            { v: 100, s: "+", l: "معلم مجاز" },
+            { v: 30, s: "+", l: "برنامج تعليمي" },
+            { v: 95, s: "%", l: "نسبة الرضا" },
           ].map((s, i) => (
             <motion.div
               key={i}
@@ -539,26 +544,26 @@ function Features() {
   );
 }
 
-/* ---------- Pricing with animated highlight ---------- */
+/* ---------- Pricing ---------- */
 
 const tiers = [
-  { name: "Hobby", price: 0, desc: "For personal projects and exploration.", features: ["100 generations / mo", "1 repository", "Community support"], cta: "Start free" },
-  { name: "Pro", price: 20, desc: "For developers shipping every day.", features: ["Unlimited generations", "Unlimited repositories", "PR reviews & refactors", "Priority support"], cta: "Start Pro trial" },
-  { name: "Team", price: 60, desc: "For teams that ship together.", features: ["Everything in Pro", "Shared context & memory", "SSO + audit logs", "Dedicated support"], cta: "Talk to sales" },
+  { name: "الأساسي", price: 0, desc: "للمبتدئين في رحلة تعلم القرآن.", features: ["درس واحد أسبوعياً", "متابعة عبر المجموعات", "محتوى تعليمي أساسي"], cta: "ابدأ مجاناً" },
+  { name: "المتقدم", price: 99, desc: "للمنتظمين في طلب العلم والإتقان.", features: ["دروس مكثفة أسبوعياً", "متابعة فردية مع معلم", "تصحيح تلاوة مستمر", "جلسات تدبر أسبوعية"], cta: "ابدأ تجربتك" },
+  { name: "المتميز", price: 199, desc: "لطالب الإجازة والتميز في القرآن.", features: ["جميع مزايا المتقدم", "طريق إجازة بالسند", "جلسات خاصة أسبوعية", "تقييم دوري شامل", "شهادة معتمدة"], cta: "تواصل معنا" },
 ];
 
 function Pricing() {
   const [active, setActive] = useState(1);
 
   return (
-    <section id="pricing" className="border-t border-border bg-secondary/30 py-28 md:py-36">
+    <section id="الأسعار" className="border-t border-border bg-secondary/30 py-28 md:py-36">
       <div className="container mx-auto max-w-6xl px-6">
         <div className="mx-auto max-w-2xl text-center">
-          <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">Pricing</p>
+          <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">الباقات</p>
           <h2 className="mt-3 text-4xl font-semibold tracking-[-0.03em] sm:text-5xl">
-            <WordReveal text="Simple, honest pricing." />
+            <WordReveal text="اختر الباقة المناسبة لك." />
           </h2>
-          <p className="mt-4 text-lg text-muted-foreground">Hover a plan to highlight it.</p>
+          <p className="mt-4 text-lg text-muted-foreground">مرر فوق الباقة لتحديدها.</p>
         </div>
 
         <div className="mt-16 grid gap-6 md:grid-cols-3">
@@ -596,11 +601,13 @@ function Pricing() {
                   </p>
                   <div className="mt-6 flex items-baseline gap-1">
                     <span className="text-5xl font-semibold tracking-tight">
-                      ${t.price}
+                      {t.price === 0 ? "مجاناً" : `${t.price} ر.س`}
                     </span>
-                    <span className={`text-sm ${isActive ? "text-background/70" : "text-muted-foreground"}`}>
-                      /mo
-                    </span>
+                    {t.price > 0 && (
+                      <span className={`text-sm ${isActive ? "text-background/70" : "text-muted-foreground"}`}>
+                        /شهرياً
+                      </span>
+                    )}
                   </div>
                   <ul className="mt-7 space-y-3 text-sm">
                     {t.features.map((f) => (
@@ -649,10 +656,10 @@ function CTA() {
           />
           <div className="relative">
             <h2 className="text-4xl font-semibold tracking-[-0.03em] sm:text-5xl">
-              <WordReveal text="Start shipping today." />
+              <WordReveal text="ابدأ رحلتك مع القرآن اليوم." />
             </h2>
             <p className="mx-auto mt-4 max-w-md text-lg text-muted-foreground">
-              Join thousands of developers building faster with Codeforge.
+              انضم إلى آلاف الطلاب حول العالم في رحلة حفظ القرآن وتعلم أحكامه.
             </p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               <Magnetic>
@@ -660,7 +667,7 @@ function CTA() {
                   href="#"
                   className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background"
                 >
-                  Get started free <ArrowRight className="h-4 w-4" />
+                  سجل الآن <ArrowLeft className="h-4 w-4" />
                 </a>
               </Magnetic>
               <Magnetic>
@@ -668,7 +675,7 @@ function CTA() {
                   href="#"
                   className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-5 py-2.5 text-sm font-medium text-foreground"
                 >
-                  Read the docs
+                  تعرف على المزيد
                 </a>
               </Magnetic>
             </div>
@@ -684,16 +691,17 @@ function Footer() {
     <footer className="border-t border-border py-14">
       <div className="container mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 px-6 sm:flex-row">
         <div className="flex items-center gap-2 text-sm font-semibold">
-          <span className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-foreground text-background">
-            <Code2 className="h-3.5 w-3.5" />
-          </span>
-          Codeforge
+          <img
+            src={logoSrc}
+            alt="أكاديمية القرآن"
+            className="h-8 w-auto"
+          />
         </div>
         <p className="text-sm text-muted-foreground">
-          © {new Date().getFullYear()} Codeforge Labs. All rights reserved.
+          © {new Date().getFullYear()} أكاديمية القرآن. جميع الحقوق محفوظة.
         </p>
         <div className="flex items-center gap-2">
-          {[Github, Twitter].map((I, i) => (
+          {[Twitter, Facebook].map((I, i) => (
             <motion.a
               key={i}
               whileHover={{ y: -2, scale: 1.08 }}
@@ -709,45 +717,32 @@ function Footer() {
   );
 }
 
-/* ---------- Scroll progress bar ---------- */
-
-function ScrollProgress() {
-  const { scrollYProgress } = useScroll();
-  const scaleX = useSpring(scrollYProgress, { stiffness: 120, damping: 24, mass: 0.4 });
-  return (
-    <motion.div
-      style={{ scaleX }}
-      className="fixed left-0 right-0 top-0 z-[60] h-0.5 origin-left bg-foreground"
-    />
-  );
-}
-
-/* ---------- How it works (sticky scroll-driven) ---------- */
+/* ---------- How it works ---------- */
 
 const steps = [
   {
-    k: "01",
-    title: "Connect your repo",
-    body: "One-click GitHub auth. Codeforge clones, indexes, and learns your conventions in under a minute.",
-    chip: "github.com/acme/api",
+    k: "٠١",
+    title: "سجل في البرنامج",
+    body: "اختر البرنامج المناسب لك وقدم طلب التسجيل. فريقنا يتواصل معك لتأكيد التسجيل.",
+    chip: "اختيار البرنامج المناسب",
   },
   {
-    k: "02",
-    title: "Describe the change",
-    body: "Plain English in your editor, terminal, or PR. Codeforge plans the diff before touching a file.",
-    chip: "add stripe checkout flow",
+    k: "٠٢",
+    title: "ادرس مع معلمك",
+    body: "تبدأ رحلتك التعليمية مع معلم مجاز يتابع تلاوتك ويصححها ويخطط لمسارك.",
+    chip: "جلسات تعليمية تفاعلية",
   },
   {
-    k: "03",
-    title: "Review the diff",
-    body: "Type-checked, tested, documented. Inline reasoning explains every non-obvious line.",
-    chip: "+482 −37 across 12 files",
+    k: "٠٣",
+    title: "متابعة وتقييم",
+    body: "تقييم دوري لمستواك مع تقارير أسبوعية عن تقدمك ونقاط القوة والتحسين.",
+    chip: "✓ متابعة مستمرة",
   },
   {
-    k: "04",
-    title: "Ship to production",
-    body: "Opens a PR, runs CI, waits for green. You merge. Codeforge keeps watching for regressions.",
-    chip: "✓ Deployed to main",
+    k: "٠٤",
+    title: "احصل على الإجازة",
+    body: "بعد الإتقان تحصل على إجازة بالسند المتصل إلى النبي ﷺ وشهادة معتمدة.",
+    chip: "✓ إجازة بالسند",
   },
 ];
 
@@ -758,7 +753,6 @@ function HowItWorks() {
     offset: ["start start", "end end"],
   });
 
-  // map progress → active step index (0..3)
   const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 28 });
   const [active, setActive] = useState(0);
   useEffect(() => {
@@ -768,37 +762,34 @@ function HowItWorks() {
     });
   }, [progress]);
 
-  // visual transforms tied directly to scroll
   const rotate = useTransform(scrollYProgress, [0, 1], [-8, 8]);
   const yShift = useTransform(scrollYProgress, [0, 1], [-30, 30]);
   const barScale = useTransform(scrollYProgress, [0, 1], [0, 1]);
 
   return (
     <section
-      id="how"
+      id="كيف-تعمل"
       ref={ref}
       className="relative border-t border-border"
       style={{ height: `${steps.length * 90}vh` }}
     >
       <div className="sticky top-0 flex h-screen items-center overflow-hidden">
         <div className="container mx-auto grid max-w-6xl grid-cols-1 gap-12 px-6 lg:grid-cols-2 lg:gap-20">
-          {/* Left: copy + steps */}
           <div className="flex flex-col justify-center">
             <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
-              How it works
+              رحلتك التعليمية
             </p>
             <h2 className="mt-3 text-4xl font-semibold tracking-[-0.03em] sm:text-5xl">
-              From prompt to PR,
+              من التسجيل إلى الإجازة،
               <br />
-              <span className="text-muted-foreground">in four moves.</span>
+              <span className="text-muted-foreground">في أربع خطوات.</span>
             </h2>
 
-            {/* progress rail */}
             <div className="relative mt-10">
-              <div className="absolute left-[15px] top-2 bottom-2 w-px bg-border" aria-hidden />
+              <div className="absolute right-[15px] top-2 bottom-2 w-px bg-border" aria-hidden />
               <motion.div
                 style={{ scaleY: barScale }}
-                className="absolute left-[15px] top-2 bottom-2 w-px origin-top bg-foreground"
+                className="absolute right-[15px] top-2 bottom-2 w-px origin-top bg-foreground"
                 aria-hidden
               />
               <ul className="space-y-7">
@@ -806,7 +797,7 @@ function HowItWorks() {
                   const isActive = i === active;
                   const isDone = i < active;
                   return (
-                    <li key={s.k} className="relative pl-12">
+                    <li key={s.k} className="relative pr-12">
                       <motion.span
                         animate={{
                           scale: isActive ? 1.15 : 1,
@@ -814,12 +805,12 @@ function HowItWorks() {
                           color: isActive || isDone ? "#F8FAFC" : "#64748B",
                         }}
                         transition={{ type: "spring", stiffness: 260, damping: 22 }}
-                        className="absolute left-0 top-0 inline-flex h-8 w-8 items-center justify-center rounded-full border border-border text-[11px] font-medium"
+                        className="absolute right-0 top-0 inline-flex h-8 w-8 items-center justify-center rounded-full border border-border text-[11px] font-medium"
                       >
                         {s.k}
                       </motion.span>
                       <motion.div
-                        animate={{ opacity: isActive ? 1 : 0.4, x: isActive ? 0 : -4 }}
+                        animate={{ opacity: isActive ? 1 : 0.4, x: isActive ? 0 : 4 }}
                         transition={{ duration: 0.5, ease }}
                       >
                         <h3 className="text-lg font-semibold tracking-tight">{s.title}</h3>
@@ -834,7 +825,6 @@ function HowItWorks() {
             </div>
           </div>
 
-          {/* Right: animated visual */}
           <div className="relative hidden items-center justify-center lg:flex [perspective:1200px]">
             <motion.div
               style={{ rotate, y: yShift }}
@@ -856,10 +846,10 @@ function HowItWorks() {
                   className="rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-elevated)]"
                 >
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <span className="font-mono">step {steps[active].k}</span>
+                    <span>الخطوة {steps[active].k}</span>
                     <span className="inline-flex h-2 w-2 rounded-full bg-foreground" />
                   </div>
-                  <div className="mt-6 font-mono text-sm text-foreground">
+                  <div className="mt-6 text-sm text-foreground">
                     <span className="text-muted-foreground">›</span> {steps[active].chip}
                   </div>
                   <div className="mt-6 space-y-2">
@@ -906,19 +896,18 @@ function HowItWorks() {
   );
 }
 
-/* ---------- Testimonials (horizontal scroll-driven) ---------- */
+/* ---------- Testimonials ---------- */
 
 const quotes = [
-  { q: "Codeforge writes the PR I would've written on my best day — in 90 seconds.", a: "Maya Chen", r: "Staff Engineer, Linear" },
-  { q: "We cut migration work from quarters to weeks. The diffs are boring in the best way.", a: "Jonas Weber", r: "CTO, Hover" },
-  { q: "It catches the bug I forgot about three commits ago. Spooky, in a good way.", a: "Priya Natarajan", r: "Eng Lead, Stripe" },
-  { q: "Our juniors ship like seniors. Our seniors ship like demigods.", a: "Tom Ardent", r: "VP Eng, Notion" },
+  { q: "بارك الله في القائمين على هذه الأكاديمية. منهجهم في التحفيظ متميز جداً والمعلمون على مستوى عالٍ من الإتقان.", a: "أحمد السلمي", r: "طالب في برنامج الإجازة" },
+  { q: "الحمد لله حصلت على إجازة في القرآن بعد سنة من المتابعة. الأسلوب التعليمي رائع والمتابعة فردية.", a: "نورة القحطاني", r: "مجازة في القرآن الكريم" },
+  { q: "أنصح كل من يرغب في تعلم التجويد بالتسجيل هنا. المعلمون يصححون الحرف حرفاً حتى الإتقان.", a: "سارة العمري", r: "طالبة في برنامج التجويد" },
+  { q: "حفظت ثلاثة أجزاء في ستة أشهر بطريقة لم أكن أتوقعها. البرنامج منظم والمتابعة ممتازة.", a: "خالد البدر", r: "طالب في برنامج التحفيظ" },
 ];
 
 function Testimonials() {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
-  // translate the row horizontally as user scrolls vertically
   const x = useTransform(scrollYProgress, [0, 1], ["2%", "-62%"]);
 
   return (
@@ -926,12 +915,12 @@ function Testimonials() {
       <div className="sticky top-0 flex h-screen flex-col justify-center overflow-hidden">
         <div className="container mx-auto max-w-6xl px-6">
           <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
-            Loved by builders
+            آراء الطلاب
           </p>
           <h2 className="mt-3 max-w-2xl text-4xl font-semibold tracking-[-0.03em] sm:text-5xl">
-            The teams shipping fastest
+            طلابنا يتحدثون عن
             <br />
-            <span className="text-muted-foreground">use Codeforge.</span>
+            <span className="text-muted-foreground">تجربتهم معنا.</span>
           </h2>
         </div>
 
@@ -950,10 +939,7 @@ function Testimonials() {
               </blockquote>
               <figcaption className="flex items-center gap-3">
                 <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-foreground text-xs font-semibold text-background">
-                  {q.a
-                    .split(" ")
-                    .map((p) => p[0])
-                    .join("")}
+                  {q.a.split(" ").map((p) => p[0]).join("")}
                 </span>
                 <div className="text-sm">
                   <div className="font-medium text-foreground">{q.a}</div>
@@ -968,48 +954,23 @@ function Testimonials() {
   );
 }
 
-/* ---------- Tools Showcase (Devin-style scroll animation) ---------- */
+/* ---------- Tools / Resources ---------- */
 
-const toolCards = [
-  { name: "Jira", icon: (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="h-7 w-7 opacity-40"><path d="M11.53 2c0 5.1 4.14 9.24 9.24 9.24h.76v.76c0 5.1-4.14 9.24-9.24 9.24H2v-9.24C2 6.9 6.43 2.47 11.53 2z"/></svg>
-  )},
-  { name: "Notion", icon: (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="h-7 w-7 opacity-40"><path d="M4 3h10l6 6v12H4V3zm10 1.5V9h4.5L14 4.5zM6 5v14h12V10h-5V5H6z"/></svg>
-  )},
-  { name: "Figma", icon: (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="h-7 w-7 opacity-40"><path d="M8 24a4 4 0 004-4v-4H8a4 4 0 000 8zm0-20a4 4 0 000 8h4V4H8zm8 0h-4v8h4a4 4 0 000-8zm-4 12h4a4 4 0 11-4 0zm8-8a4 4 0 11-4 4 4 4 0 014-4z"/></svg>
-  )},
-  { name: "Vercel", icon: (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="h-7 w-7 opacity-40"><path d="M12 2L2 22h20L12 2z"/></svg>
-  )},
-  { name: "AWS", icon: (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="h-6 w-6 opacity-40"><path d="M6.76 11.24l1.42 1.42L12 8.83l3.83 3.83 1.41-1.42L12 6 6.76 11.24zM12 2a10 10 0 100 20 10 10 0 000-20z"/></svg>
-  )},
-  { name: "Sentry", icon: (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="h-7 w-7 opacity-40"><path d="M13.93 2.18a2.07 2.07 0 00-3.59 0L.41 19.46A2.07 2.07 0 002.2 22.5h6.09a.69.69 0 000-1.38H2.2a.69.69 0 01-.6-1L11.54 3a.69.69 0 011.2 0l4.37 7.57a7.35 7.35 0 00-3.84 6.14.69.69 0 001.38.08 6 6 0 013.47-5.13l2.25 3.89a2.07 2.07 0 01-1.79 3.1h-1a.69.69 0 000 1.39h1A3.45 3.45 0 0021.56 16z"/></svg>
-  )},
-  { name: "Datadog", icon: (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="h-7 w-7 opacity-40"><circle cx="12" cy="12" r="10"/></svg>
-  )},
-  { name: "Stripe", icon: (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="h-6 w-6 opacity-40"><path d="M13.48 8.26c0-.84.7-1.17 1.85-1.17a12.12 12.12 0 015.1 1.33V4.14a14.32 14.32 0 00-5.1-.86C11.5 3.28 9 5.18 9 8.45c0 5 6.91 4.2 6.91 6.36 0 1-.87 1.32-2.08 1.32a13.24 13.24 0 01-5.56-1.52v4.33A15 15 0 0013.83 20c3.88 0 6.55-1.92 6.55-5.22 0-5.4-6.9-4.44-6.9-6.52z"/></svg>
-  )},
-  { name: "MongoDB", icon: (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="h-7 w-7 opacity-40"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15v-4H7l5-7v4h4l-5 7z"/></svg>
-  )},
-  { name: "PostgreSQL", icon: (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="h-7 w-7 opacity-40"><path d="M17.13 4.57a7.38 7.38 0 00-4.53-1.57c-1.8 0-3.24.53-4.3 1.37A6.49 6.49 0 006 8.91c0 3.35 2.62 5.71 6.49 5.71h.07c3.49 0 5.8-1.96 6.24-4.98.18-1.19-.08-2.78-1.67-5.07zM12 22a10 10 0 110-20 10 10 0 010 20z"/></svg>
-  )},
-  { name: "Docker", icon: (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="h-7 w-7 opacity-40"><path d="M20.83 10.2a4.42 4.42 0 00-2.12-.72 6.65 6.65 0 00-.69-2A3.1 3.1 0 0016.38 6l-.41-.26-.3.37a4.73 4.73 0 00-.68 1.47c-.25.94-.1 1.83.43 2.58a5.18 5.18 0 01-1.84.44H2.55A.55.55 0 002 11.15a9.9 9.9 0 00.58 3.52A5.52 5.52 0 005 17.78c1.3.86 3.42 1.22 5.76 1.22a15.84 15.84 0 004.08-.5 10.6 10.6 0 003.22-1.65 9.09 9.09 0 002.14-2.42A8.24 8.24 0 0021.5 11a.42.42 0 00-.02-.02 3.04 3.04 0 00-.65-.78zM4 10h2V8H4v2zm3 0h2V8H7v2zm0 3h2v-2H7v2zm3-3h2V8h-2v2zm0 3h2v-2h-2v2zm3-3h2V8h-2v2zm0 3h2v-2h-2v2zm3-3h2V8h-2v2z"/></svg>
-  )},
-  { name: "Snowflake", icon: (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="h-7 w-7 opacity-40"><path d="M12 2l1.09 3.41L16 4l-1.09 3.41L18.32 6l-1.91 2.91L20 9.82l-3.41 1.09L18 14l-3.41-1.09L16 16l-2.91-1.91L12 18l-1.09-3.91L8 16l1.09-3.09L5.68 14l1.91-2.91L4 10.18l3.41-1.09L6 6l3.41 1.09L8 4l2.91 1.91L12 2z"/></svg>
-  )},
+const resourceCards = [
+  { name: "المصحف الشريف" },
+  { name: "تفسير الطبري" },
+  { name: "تفسير ابن كثير" },
+  { name: "صحيح البخاري" },
+  { name: "معجم اللغة" },
+  { name: "أحكام التجويد" },
+  { name: "القراءات العشر" },
+  { name: "الناسخ والمنسوخ" },
+  { name: "أسباب النزول" },
+  { name: "إعراب القرآن" },
+  { name: "بلاغة القرآن" },
+  { name: "مقارئ إلكترونية" },
 ];
 
-// Column layout: 7 columns with different vertical offsets for parallax
 const columnConfig = [
   { cards: [0, 1], yMultiplier: 1.2, startOffset: 120 },
   { cards: [2, 3], yMultiplier: 0.7, startOffset: 40 },
@@ -1020,27 +981,18 @@ const columnConfig = [
   { cards: [11], yMultiplier: 1.1, startOffset: 100 },
 ];
 
-const integrations = [
+const programIntegrations = [
   {
-    name: "GitHub",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="currentColor" className="h-8 w-8"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
-    ),
-    desc: "Codeforge ships PRs the way your team does — picking up review feedback and CI results to get each PR approved and merged.",
+    name: "برنامج الحفظ",
+    desc: "برنامج متكامل لحفظ القرآن الكريم مع متابعة يومية وتسميع دوري. يشرف عليه معلمون مجازون يضعون خططاً مخصصة لكل طالب حسب مستواه.",
   },
   {
-    name: "Linear",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="currentColor" className="h-8 w-8"><path d="M3.36 7.14l13.5 13.5c-.87.28-1.8.36-2.74.36C8.27 21 3 15.73 3 9.88c0-.94.08-1.87.36-2.74zm-1 4.38A9.1 9.1 0 0012.48 21.62L2.36 11.52zM21.64 12.48A9.1 9.1 0 0011.52 2.36L21.64 12.48zm-.28-1.34C20.57 6.24 17.76 3.43 14.86 2.64L21.36 9.14c-.28.87-.36 1.8-.36 2z"/></svg>
-    ),
-    desc: "Assign Codeforge tickets directly in Linear, or add a Codeforge label.",
+    name: "برنامج التجويد",
+    desc: "تعلم أحكام التجويد تطبيقياً مع قراء مجازين. تصحيح التلاوة حرفاً حرفاً مع شرح مبسط لأحكام النون الساكنة والمدود وغيرها.",
   },
   {
-    name: "Slack",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="currentColor" className="h-8 w-8"><path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zm1.271 0a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313zM8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834zm0 1.271a2.528 2.528 0 0 1 2.521 2.521 2.528 2.528 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312zm10.122 2.521a2.528 2.528 0 0 1 2.522-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522 2.521h-2.522V8.834zm-1.268 0a2.528 2.528 0 0 1-2.523 2.521 2.527 2.527 0 0 1-2.52-2.521V2.522A2.527 2.527 0 0 1 15.165 0a2.528 2.528 0 0 1 2.523 2.522v6.312zm-2.523 10.122a2.528 2.528 0 0 1 2.523 2.522A2.528 2.528 0 0 1 15.165 24a2.527 2.527 0 0 1-2.52-2.522v-2.522h2.52zm0-1.268a2.527 2.527 0 0 1-2.52-2.523 2.527 2.527 0 0 1 2.52-2.52h6.313A2.528 2.528 0 0 1 24 15.165a2.528 2.528 0 0 1-2.522 2.523h-6.313z"/></svg>
-    ),
-    desc: "Tag Codeforge in any conversation to surface relevant context, dig into issues, or turn discussions directly into PRs.",
+    name: "برنامج التفسير",
+    desc: "فهم معاني القرآن وتدبر آياته من خلال تفسير السلف الصالح. دراسة أسباب النزول والمكي والمدني والناسخ والمنسوخ.",
   },
 ];
 
@@ -1051,23 +1003,19 @@ function ToolsShowcase() {
     offset: ["start end", "end start"],
   });
 
-  // Phase transitions based on scroll progress
   const headerOpacity = useTransform(scrollYProgress, [0.15, 0.35], [1, 0]);
   const headerBlur = useTransform(scrollYProgress, [0.15, 0.35], [0, 12]);
   const headerFilter = useMotionTemplate`blur(${headerBlur}px)`;
   const headerY = useTransform(scrollYProgress, [0.05, 0.35], [0, -120]);
 
-  // Grid cards fade & rise
   const gridOpacity = useTransform(scrollYProgress, [0.05, 0.15, 0.4, 0.5], [0, 1, 1, 0]);
   const gridY = useTransform(scrollYProgress, [0.05, 0.15, 0.4, 0.5], [200, 0, -100, -300]);
 
-  // Integration cards phase
   const intOpacity = useTransform(scrollYProgress, [0.45, 0.55], [0, 1]);
   const intY = useTransform(scrollYProgress, [0.45, 0.55], [80, 0]);
 
   const [activeInt, setActiveInt] = useState(1);
 
-  // Spring-smoothed values
   const smoothGridY = useSpring(gridY, { stiffness: 60, damping: 20 });
   const smoothHeaderY = useSpring(headerY, { stiffness: 60, damping: 20 });
   const smoothIntY = useSpring(intY, { stiffness: 60, damping: 20 });
@@ -1075,25 +1023,23 @@ function ToolsShowcase() {
   return (
     <section
       ref={sectionRef}
-      id="tools"
+      id="الموارد"
       className="relative"
       style={{ height: "350vh" }}
     >
       <div className="sticky top-0 flex h-screen flex-col items-center justify-center overflow-hidden"
         style={{ background: "oklch(0.965 0 0)" }}
       >
-        {/* Header */}
         <motion.div
           style={{ opacity: headerOpacity, filter: headerFilter, y: smoothHeaderY }}
           className="absolute z-10 text-center px-6"
         >
           <h2 className="text-5xl font-semibold tracking-[-0.03em] sm:text-6xl md:text-7xl">
-            Able to work with{" "}
-            <span style={{ color: "oklch(0.55 0.18 260)" }}>hundreds of tools</span>
+            مكتبة قرآنية متكاملة{" "}
+            <span style={{ color: "oklch(0.55 0.18 260)" }}>من الموارد والمراجع</span>
           </h2>
         </motion.div>
 
-        {/* Tool cards grid */}
         <motion.div
           style={{ opacity: gridOpacity, y: smoothGridY }}
           className="absolute inset-0 flex items-end justify-center gap-3 px-4 pb-8 md:gap-4 md:px-8"
@@ -1111,14 +1057,16 @@ function ToolsShowcase() {
               }}
             >
               {col.cards.map((cardIdx) => {
-                const tool = toolCards[cardIdx];
+                const resource = resourceCards[cardIdx];
                 return (
                   <div
                     key={cardIdx}
-                    className="flex h-28 w-28 items-center justify-center rounded-2xl border border-border/50 sm:h-36 sm:w-36 md:h-44 md:w-44 lg:h-48 lg:w-48"
+                    className="flex h-24 w-24 items-center justify-center rounded-2xl border border-border/50 sm:h-32 sm:w-32 md:h-40 md:w-40 lg:h-44 lg:w-44"
                     style={{ background: "oklch(0.975 0 0)" }}
                   >
-                    {tool.icon}
+                    <span className="text-xs md:text-sm font-semibold text-muted-foreground text-center leading-relaxed px-2">
+                      {resource.name}
+                    </span>
                   </div>
                 );
               })}
@@ -1126,12 +1074,11 @@ function ToolsShowcase() {
           ))}
         </motion.div>
 
-        {/* Integration showcase cards */}
         <motion.div
           style={{ opacity: intOpacity, y: smoothIntY }}
           className="absolute inset-x-0 flex items-center justify-center gap-4 px-4 md:gap-6 md:px-8"
         >
-          {integrations.map((int, i) => {
+          {programIntegrations.map((int, i) => {
             const isActive = i === activeInt;
             return (
               <motion.div
@@ -1147,7 +1094,6 @@ function ToolsShowcase() {
                   minWidth: isActive ? 0 : 100,
                 }}
               >
-                {/* Active state: dark bg with content */}
                 <AnimatePresence>
                   {isActive && (
                     <motion.div
@@ -1158,19 +1104,18 @@ function ToolsShowcase() {
                       className="absolute inset-0 flex flex-col items-center rounded-3xl bg-foreground text-background p-8 md:p-12"
                     >
                       <div className="flex items-center gap-3 mt-4">
-                        <span className="text-background">{int.icon}</span>
+                        <BookOpen className="h-8 w-8 text-background" />
                         <span className="text-3xl font-semibold tracking-tight md:text-4xl">{int.name}</span>
                       </div>
                       <p className="mt-4 max-w-md text-center text-sm leading-relaxed text-background/70 md:text-base">
                         {int.desc}
                       </p>
-                      {/* Fake screenshot area */}
                       <div className="mt-6 w-full max-w-lg flex-1 overflow-hidden rounded-xl border border-white/10 bg-white/5 shadow-2xl">
                         <div className="flex items-center gap-1.5 border-b border-white/10 px-4 py-2.5">
-                          <span className="h-2.5 w-2.5 rounded-full bg-red-400/60" />
-                          <span className="h-2.5 w-2.5 rounded-full bg-yellow-400/60" />
-                          <span className="h-2.5 w-2.5 rounded-full bg-green-400/60" />
-                          <span className="ml-3 text-xs text-white/40 font-mono">{int.name.toLowerCase()}.com</span>
+                          <span className="h-2.5 w-2.5 rounded-full bg-primary/60" />
+                          <span className="h-2.5 w-2.5 rounded-full bg-secondary/60" />
+                          <span className="h-2.5 w-2.5 rounded-full bg-accent-light/60" />
+                          <span className="mr-3 text-xs text-white/40">{int.name}</span>
                         </div>
                         <div className="p-4 space-y-3">
                           {[0, 1, 2, 3].map((j) => (
@@ -1212,13 +1157,12 @@ function ToolsShowcase() {
                   )}
                 </AnimatePresence>
 
-                {/* Collapsed state: light bg with icon */}
                 {!isActive && (
                   <div
                     className="flex h-full items-center justify-center rounded-3xl border border-border/50"
                     style={{ background: "oklch(0.955 0 0)" }}
                   >
-                    <span className="text-muted-foreground/50">{int.icon}</span>
+                    <span className="text-muted-foreground/50 text-sm font-semibold">{int.name}</span>
                   </div>
                 )}
               </motion.div>
@@ -1229,6 +1173,8 @@ function ToolsShowcase() {
     </section>
   );
 }
+
+/* ---------- Index ---------- */
 
 function Index() {
   return (

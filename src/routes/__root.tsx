@@ -77,10 +77,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Codeforge — Ship production code 10x faster with AI" },
-      { name: "description", content: "Your AI coding partner writes, reviews, and refactors code instantly. Build features in minutes, not days." },
-      { property: "og:title", content: "Codeforge — Ship production code 10x faster with AI" },
-      { property: "og:description", content: "Your AI coding partner writes, reviews, and refactors code instantly." },
+      { title: "أكاديمية القرآن — تعليم القرآن الكريم بالتجويد والتدبر" },
+      { name: "description", content: "أكاديمية قرآنية رائدة تقدم برامج متكاملة لتعليم القرآن الكريم حفظاً وتجويداً وتفسيراً مع نخبة من المعلمين المجازين." },
+      { property: "og:title", content: "أكاديمية القرآن — تعليم القرآن الكريم بالتجويد والتدبر" },
+      { property: "og:description", content: "أكاديمية قرآنية رائدة تقدم برامج متكاملة لتعليم القرآن الكريم حفظاً وتجويداً وتفسيراً." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -90,7 +90,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap",
       },
     ],
   }),
@@ -102,7 +102,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="ar" dir="rtl">
       <head>
         <HeadContent />
       </head>
