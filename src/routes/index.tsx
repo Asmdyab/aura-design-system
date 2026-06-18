@@ -129,7 +129,7 @@ function CursorBlob() {
     <motion.div
       aria-hidden
       style={{ x, y }}
-      className="pointer-events-none fixed left-0 top-0 z-[1] hidden h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,oklch(0_0_0/0.06),transparent_60%)] blur-2xl md:block"
+      className="pointer-events-none fixed left-0 top-0 z-[1] hidden h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(15,23,42,0.06),transparent_60%)] blur-2xl md:block"
     />
   );
 }
