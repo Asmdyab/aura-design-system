@@ -93,7 +93,7 @@ function WordReveal({ text, className = "" }: { text: string; className?: string
 
 function Counter({ to, suffix = "" }: { to: number; suffix?: string }) {
   const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
+  const inView = useInView(ref, { once: false, margin: "-80px" });
   const [val, setVal] = useState(0);
   useEffect(() => {
     if (!inView) return;
@@ -272,7 +272,7 @@ function Hero() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
+          viewport={{ once: false }}
           transition={{ duration: 0.9, ease, delay: 0.4 }}
           className="mx-auto mt-8 max-w-3xl"
         >
@@ -297,7 +297,7 @@ function Hero() {
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
+          viewport={{ once: false }}
           transition={{ duration: 0.9, ease, delay: 0.55 }}
           className="mt-9 flex flex-wrap items-center justify-center gap-3"
         >
@@ -366,7 +366,7 @@ function QuranPreview() {
         onMouseLeave={reset}
         initial={{ opacity: 0, y: 60, scale: 0.96 }}
         whileInView={{ opacity: 1, y: 0, scale: 1 }}
-        viewport={{ once: true }}
+        viewport={{ once: false }}
         transition={{ duration: 1.1, ease }}
         style={{
           rotateX: rx,
@@ -381,7 +381,7 @@ function QuranPreview() {
               key={i}
               initial={{ scale: 0 }}
               whileInView={{ scale: 1 }}
-              viewport={{ once: true }}
+              viewport={{ once: false }}
               transition={{ delay: 0.2 + i * 0.08, type: "spring", stiffness: 300 }}
               className="h-2.5 w-2.5 rounded-full opacity-60"
               style={{ background: c }}
@@ -401,7 +401,7 @@ function QuranPreview() {
                 key={i}
                 initial={{ opacity: 0, x: -8 }}
                 whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
+                viewport={{ once: false }}
                 transition={{ delay: 0.5 + i * 0.18, duration: 0.5, ease }}
                 className={`text-lg md:text-xl ${l.highlight ? "text-secondary font-semibold" : "text-foreground/80"}`}
               >
@@ -478,7 +478,7 @@ function FeatureCard({ f, i }: { f: (typeof features)[number]; i: number }) {
       onMouseMove={onMove}
       initial={{ opacity: 0, y: 32 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-60px" }}
+      viewport={{ once: false, margin: "-60px" }}
       transition={{ duration: 0.8, ease, delay: i * 0.07 }}
       className="group relative overflow-hidden bg-card p-8"
     >
@@ -504,7 +504,7 @@ function Features() {
           <motion.p
             initial={{ opacity: 0, y: 12 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            viewport={{ once: false }}
             transition={{ duration: 0.6, ease }}
             className="text-xs font-medium uppercase tracking-widest text-muted-foreground"
           >
@@ -516,7 +516,7 @@ function Features() {
           <motion.p
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
+            viewport={{ once: false }}
             transition={{ duration: 0.8, delay: 0.4 }}
             className="mt-4 text-lg text-muted-foreground"
           >
@@ -541,7 +541,7 @@ function Features() {
               key={i}
               initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+              viewport={{ once: false }}
               transition={{ duration: 0.7, ease, delay: i * 0.1 }}
               className="text-center"
             >
@@ -588,7 +588,7 @@ function Pricing() {
                 onMouseEnter={() => setActive(i)}
                 initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-60px" }}
+                viewport={{ once: false, margin: "-60px" }}
                 transition={{ duration: 0.8, ease, delay: i * 0.08 }}
                 className="relative"
               >
@@ -657,7 +657,7 @@ function CTA() {
         <motion.div
           initial={{ opacity: 0, y: 40, scale: 0.97 }}
           whileInView={{ opacity: 1, y: 0, scale: 1 }}
-          viewport={{ once: true }}
+          viewport={{ once: false }}
           transition={{ duration: 1, ease }}
           className="relative overflow-hidden rounded-3xl border border-border bg-card p-12 text-center shadow-[var(--shadow-elevated)] md:p-20"
         >
@@ -943,7 +943,7 @@ function Testimonials() {
               key={i}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
+              viewport={{ once: false, margin: "-100px" }}
               transition={{ duration: 0.8, ease, delay: i * 0.05 }}
               className="flex h-80 w-[420px] shrink-0 flex-col justify-between rounded-3xl border border-border bg-card p-8 shadow-[var(--shadow-card)]"
             >
@@ -1096,7 +1096,8 @@ function ToolsShowcase() {
             return (
               <motion.div
                 key={int.name}
-                onClick={() => setActiveInt(i)}
+                onMouseEnter={() => setActiveInt(i)} onMouseLeave={() => setActiveInt(1)}
+                initial={{ flex: 1 }}
                 animate={{
                   flex: isActive ? 3 : 1,
                 }}
@@ -1104,7 +1105,7 @@ function ToolsShowcase() {
                 className="relative cursor-pointer overflow-hidden rounded-3xl"
                 style={{
                   height: "min(70vh, 520px)",
-                  minWidth: isActive ? 0 : 100,
+                  minWidth: 100,
                 }}
               >
                 <AnimatePresence>
