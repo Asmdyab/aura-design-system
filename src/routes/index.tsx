@@ -210,7 +210,7 @@ function Hero() {
   // mouse-tracked spotlight
   const mx = useMotionValue(50);
   const my = useMotionValue(30);
-  const spotlight = useMotionTemplate`radial-gradient(600px circle at ${mx}% ${my}%, oklch(0 0 0 / 0.07), transparent 60%)`;
+  const spotlight = useMotionTemplate`radial-gradient(600px circle at ${mx}% ${my}%, rgba(15,23,42,0.07), transparent 60%)`;
 
   function onMove(e: React.MouseEvent) {
     const r = (e.currentTarget as HTMLElement).getBoundingClientRect();
