@@ -9,6 +9,8 @@ import {
   useInView,
   AnimatePresence,
   animate,
+  LayoutGroup,
+  useMotionValueEvent,
 } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -106,7 +108,7 @@ function Counter({ to, suffix = "" }: { to: number; suffix?: string }) {
   }, [inView, to]);
   return (
     <span ref={ref}>
-      {Math.round(val).toLocaleString()}
+      {Math.round(val).toLocaleString("en-US")}
       {suffix}
     </span>
   );
@@ -524,7 +526,7 @@ function Features() {
           </motion.p>
         </div>
 
-        <div className="mt-16 grid gap-px overflow-hidden rounded-3xl border border-border bg-border sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-16 grid gap-px overflow-hidden rounded-3xl  sm:grid-cols-2 lg:grid-cols-3">
           {features.map((f, i) => (
             <FeatureCard key={f.title} f={f} i={i} />
           ))}
@@ -592,7 +594,7 @@ function Pricing() {
                 transition={{ duration: 0.8, ease, delay: i * 0.08 }}
                 className="relative"
               >
-                <AnimatePresence>
+          <AnimatePresence mode="wait">
                   {isActive && (
                     <motion.div
                       layoutId="price-highlight"
@@ -849,7 +851,7 @@ function HowItWorks() {
             />
 
             <div className="relative w-[360px] [transform-style:preserve-3d]">
-              <AnimatePresence mode="wait">
+          <AnimatePresence mode="popLayout">
                 <motion.div
                   key={active}
                   initial={{ opacity: 0, y: 30, rotateX: -15 }}
@@ -1009,6 +1011,12 @@ const programIntegrations = [
   },
 ];
 
+const morphMap = [
+  { resourceIdx: 0, integrationIdx: 0 },
+  { resourceIdx: 5, integrationIdx: 1 },
+  { resourceIdx: 2, integrationIdx: 2 },
+] as const;
+
 function ToolsShowcase() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
@@ -1020,18 +1028,24 @@ function ToolsShowcase() {
   const headerBlur = useTransform(scrollYProgress, [0.15, 0.35], [0, 12]);
   const headerFilter = useMotionTemplate`blur(${headerBlur}px)`;
   const headerY = useTransform(scrollYProgress, [0.05, 0.35], [0, -120]);
+  const smoothHeaderY = useSpring(headerY, { stiffness: 60, damping: 20 });
 
-  const gridOpacity = useTransform(scrollYProgress, [0.05, 0.15, 0.4, 0.5], [0, 1, 1, 0]);
-  const gridY = useTransform(scrollYProgress, [0.05, 0.15, 0.4, 0.5], [200, 0, -100, -300]);
-
-  const intOpacity = useTransform(scrollYProgress, [0.45, 0.55], [0, 1]);
-  const intY = useTransform(scrollYProgress, [0.45, 0.55], [80, 0]);
+  const col0Y = useTransform(scrollYProgress, [0.05, 0.4], [columnConfig[0].startOffset, -columnConfig[0].startOffset * columnConfig[0].yMultiplier]);
+  const col1Y = useTransform(scrollYProgress, [0.05, 0.4], [columnConfig[1].startOffset, -columnConfig[1].startOffset * columnConfig[1].yMultiplier]);
+  const col2Y = useTransform(scrollYProgress, [0.05, 0.4], [columnConfig[2].startOffset, -columnConfig[2].startOffset * columnConfig[2].yMultiplier]);
+  const col3Y = useTransform(scrollYProgress, [0.05, 0.4], [columnConfig[3].startOffset, -columnConfig[3].startOffset * columnConfig[3].yMultiplier]);
+  const col4Y = useTransform(scrollYProgress, [0.05, 0.4], [columnConfig[4].startOffset, -columnConfig[4].startOffset * columnConfig[4].yMultiplier]);
+  const col5Y = useTransform(scrollYProgress, [0.05, 0.4], [columnConfig[5].startOffset, -columnConfig[5].startOffset * columnConfig[5].yMultiplier]);
+  const col6Y = useTransform(scrollYProgress, [0.05, 0.4], [columnConfig[6].startOffset, -columnConfig[6].startOffset * columnConfig[6].yMultiplier]);
+  const colYs = [col0Y, col1Y, col2Y, col3Y, col4Y, col5Y, col6Y];
 
   const [activeInt, setActiveInt] = useState(1);
+  const [phase, setPhase] = useState<"grid" | "morph">("grid");
 
-  const smoothGridY = useSpring(gridY, { stiffness: 60, damping: 20 });
-  const smoothHeaderY = useSpring(headerY, { stiffness: 60, damping: 20 });
-  const smoothIntY = useSpring(intY, { stiffness: 60, damping: 20 });
+  useMotionValueEvent(scrollYProgress, "change", (v) => {
+    if (v > 0.38 && phase === "grid") setPhase("morph");
+    if (v < 0.25 && phase !== "grid") setPhase("grid");
+  });
 
   return (
     <section
@@ -1053,136 +1067,143 @@ function ToolsShowcase() {
           </h2>
         </motion.div>
 
-        <motion.div
-          style={{ opacity: gridOpacity, y: smoothGridY }}
-          className="absolute inset-0 flex items-end justify-center gap-3 px-4 pb-8 md:gap-4 md:px-8"
-        >
-          {columnConfig.map((col, ci) => (
-            <motion.div
-              key={ci}
-              className="flex flex-col gap-3 md:gap-4"
-              style={{
-                y: useTransform(
-                  scrollYProgress,
-                  [0.05, 0.4],
-                  [col.startOffset, -col.startOffset * col.yMultiplier]
-                ),
-              }}
-            >
-              {col.cards.map((cardIdx) => {
-                const resource = resourceCards[cardIdx];
-                return (
-                  <div
-                    key={cardIdx}
-                    className="flex h-24 w-24 items-center justify-center rounded-2xl border border-border/50 sm:h-32 sm:w-32 md:h-40 md:w-40 lg:h-44 lg:w-44"
-                    style={{ background: "oklch(0.975 0 0)" }}
-                  >
-                    <span className="text-xs md:text-sm font-semibold text-muted-foreground text-center leading-relaxed px-2">
-                      {resource.name}
-                    </span>
-                  </div>
-                );
-              })}
-            </motion.div>
-          ))}
-        </motion.div>
-
-        <motion.div
-          style={{ opacity: intOpacity, y: smoothIntY }}
-          className="absolute inset-x-0 flex items-center justify-center gap-4 px-4 md:gap-6 md:px-8"
-        >
-          {programIntegrations.map((int, i) => {
-            const isActive = i === activeInt;
-            return (
+        <LayoutGroup>
+          <AnimatePresence mode="wait">
+            {phase === "grid" ? (
               <motion.div
-                key={int.name}
-                onMouseEnter={() => setActiveInt(i)} onMouseLeave={() => setActiveInt(1)}
-                initial={{ flex: 1 }}
-                animate={{
-                  flex: isActive ? 3 : 1,
-                }}
-                transition={{ type: "spring", stiffness: 200, damping: 28 }}
-                className="relative cursor-pointer overflow-hidden rounded-3xl"
-                style={{
-                  height: "min(70vh, 520px)",
-                  minWidth: 100,
-                }}
+                key="grid"
+                className="absolute inset-0 flex items-end justify-center gap-3 px-4 pb-8 md:gap-4 md:px-8"
               >
-                <AnimatePresence>
-                  {isActive && (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.4 }}
-                      className="absolute inset-0 flex flex-col items-center rounded-3xl bg-foreground text-background p-8 md:p-12"
-                    >
-                      <div className="flex items-center gap-3 mt-4">
-                        <BookOpen className="h-8 w-8 text-background" />
-                        <span className="text-3xl font-semibold tracking-tight md:text-4xl">{int.name}</span>
-                      </div>
-                      <p className="mt-4 max-w-md text-center text-sm leading-relaxed text-background/70 md:text-base">
-                        {int.desc}
-                      </p>
-                      <div className="mt-6 w-full max-w-lg flex-1 overflow-hidden rounded-xl border border-white/10 bg-white/5 shadow-2xl">
-                        <div className="flex items-center gap-1.5 border-b border-white/10 px-4 py-2.5">
-                          <span className="h-2.5 w-2.5 rounded-full bg-primary/60" />
-                          <span className="h-2.5 w-2.5 rounded-full bg-secondary/60" />
-                          <span className="h-2.5 w-2.5 rounded-full bg-accent-light/60" />
-                          <span className="mr-3 text-xs text-white/40">{int.name}</span>
-                        </div>
-                        <div className="p-4 space-y-3">
-                          {[0, 1, 2, 3].map((j) => (
-                            <motion.div
-                              key={j}
-                              initial={{ scaleX: 0 }}
-                              animate={{ scaleX: 1 }}
-                              transition={{ delay: 0.2 + j * 0.1, duration: 0.5, ease }}
-                              style={{ originX: 0 }}
-                              className="h-3 rounded-full bg-white/10"
-                            >
-                              <motion.div
-                                initial={{ scaleX: 0 }}
-                                animate={{ scaleX: [0.3, 0.5, 0.8, 0.6][j] }}
-                                transition={{ delay: 0.4 + j * 0.1, duration: 0.6, ease }}
-                                style={{ originX: 0 }}
-                                className="h-full rounded-full bg-white/20"
-                              />
-                            </motion.div>
-                          ))}
-                          <div className="mt-4 flex items-start gap-3">
-                            <div className="h-8 w-8 shrink-0 rounded-full bg-white/15" />
-                            <div className="flex-1 space-y-2">
-                              <div className="h-2.5 w-24 rounded bg-white/15" />
-                              <div className="h-2 w-full rounded bg-white/8" />
-                              <div className="h-2 w-3/4 rounded bg-white/8" />
-                            </div>
-                          </div>
-                          <div className="flex items-start gap-3">
-                            <div className="h-8 w-8 shrink-0 rounded-full bg-blue-400/20" />
-                            <div className="flex-1 space-y-2">
-                              <div className="h-2.5 w-20 rounded bg-white/15" />
-                              <div className="h-2 w-full rounded bg-white/8" />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-
-                {!isActive && (
-                  <div
-                    className="flex h-full items-center justify-center rounded-3xl border border-border/50"
-                    style={{ background: "oklch(0.955 0 0)" }}
+                {columnConfig.map((col, ci) => (
+                  <motion.div
+                    key={ci}
+                    className="flex flex-col gap-3 md:gap-4"
+                    style={{ y: colYs[ci] }}
                   >
-                    <span className="text-muted-foreground/50 text-sm font-semibold">{int.name}</span>
-                  </div>
-                )}
+                    {col.cards.map((cardIdx) => {
+                      const resource = resourceCards[cardIdx];
+                      const morphEntry = morphMap.find(m => m.resourceIdx === cardIdx);
+                      return (
+                        <motion.div
+                          key={cardIdx}
+                          layoutId={morphEntry ? `morph-${morphEntry.integrationIdx}` : undefined}
+                          exit={{ opacity: 0, transition: { duration: 0.12 } }}
+                          className="flex h-24 w-24 items-center justify-center rounded-2xl border border-border/50 sm:h-32 sm:w-32 md:h-40 md:w-40 lg:h-44 lg:w-44"
+                          style={{ background: "oklch(0.975 0 0)" }}
+                        >
+                          <span className="text-xs md:text-sm font-semibold text-muted-foreground text-center leading-relaxed px-2">
+                            {resource.name}
+                          </span>
+                        </motion.div>
+                      );
+                    })}
+                  </motion.div>
+                ))}
               </motion.div>
-            );
-          })}
-        </motion.div>
+            ) : (
+              <motion.div
+                key="integrations"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.35 }}
+                className="absolute inset-0 flex items-center justify-center gap-4 px-4 md:gap-6 md:px-8"
+              >
+                {programIntegrations.map((int, i) => {
+                  const isActive = i === activeInt;
+                  return (
+                    <motion.div
+                      key={int.name}
+                      layoutId={`morph-${i}`}
+                      onMouseEnter={() => setActiveInt(i)}
+                      onMouseLeave={() => setActiveInt(1)}
+                      animate={{
+                        flex: isActive ? 3 : 1,
+                      }}
+                      transition={{ type: "spring", stiffness: 200, damping: 28 }}
+                      className="relative cursor-pointer overflow-hidden rounded-3xl"
+                      style={{
+                        height: "min(70vh, 520px)",
+                        minWidth: 100,
+                      }}
+                    >
+          <AnimatePresence mode="popLayout">
+                        {isActive && (
+                          <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.4 }}
+                            className="absolute inset-0 flex flex-col items-center rounded-3xl bg-foreground text-background p-8 md:p-12"
+                          >
+                            <div className="flex items-center gap-3 mt-4">
+                              <BookOpen className="h-8 w-8 text-background" />
+                              <span className="text-3xl font-semibold tracking-tight md:text-4xl">{int.name}</span>
+                            </div>
+                            <p className="mt-4 max-w-md text-center text-sm leading-relaxed text-background/70 md:text-base">
+                              {int.desc}
+                            </p>
+                            <div className="mt-6 w-full max-w-lg flex-1 overflow-hidden rounded-xl border border-white/10 bg-white/5 shadow-2xl">
+                              <div className="flex items-center gap-1.5 border-b border-white/10 px-4 py-2.5">
+                                <span className="h-2.5 w-2.5 rounded-full bg-primary/60" />
+                                <span className="h-2.5 w-2.5 rounded-full bg-secondary/60" />
+                                <span className="h-2.5 w-2.5 rounded-full bg-accent-light/60" />
+                                <span className="mr-3 text-xs text-white/40">{int.name}</span>
+                              </div>
+                              <div className="p-4 space-y-3">
+                                {[0, 1, 2, 3].map((j) => (
+                                  <motion.div
+                                    key={j}
+                                    initial={{ scaleX: 0 }}
+                                    animate={{ scaleX: 1 }}
+                                    transition={{ delay: 0.2 + j * 0.1, duration: 0.5, ease }}
+                                    style={{ originX: 0 }}
+                                    className="h-3 rounded-full bg-white/10"
+                                  >
+                                    <motion.div
+                                      initial={{ scaleX: 0 }}
+                                      animate={{ scaleX: [0.3, 0.5, 0.8, 0.6][j] }}
+                                      transition={{ delay: 0.4 + j * 0.1, duration: 0.6, ease }}
+                                      style={{ originX: 0 }}
+                                      className="h-full rounded-full bg-white/20"
+                                    />
+                                  </motion.div>
+                                ))}
+                                <div className="mt-4 flex items-start gap-3">
+                                  <div className="h-8 w-8 shrink-0 rounded-full bg-white/15" />
+                                  <div className="flex-1 space-y-2">
+                                    <div className="h-2.5 w-24 rounded bg-white/15" />
+                                    <div className="h-2 w-full rounded bg-white/8" />
+                                    <div className="h-2 w-3/4 rounded bg-white/8" />
+                                  </div>
+                                </div>
+                                <div className="flex items-start gap-3">
+                                  <div className="h-8 w-8 shrink-0 rounded-full bg-blue-400/20" />
+                                  <div className="flex-1 space-y-2">
+                                    <div className="h-2.5 w-20 rounded bg-white/15" />
+                                    <div className="h-2 w-full rounded bg-white/8" />
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+
+                      {!isActive && (
+                        <div
+                          className="flex h-full items-center justify-center rounded-3xl border border-border/50"
+                          style={{ background: "oklch(0.955 0 0)" }}
+                        >
+                          <span className="text-muted-foreground/50 text-sm font-semibold">{int.name}</span>
+                        </div>
+                      )}
+                    </motion.div>
+                  );
+                })}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </LayoutGroup>
       </div>
     </section>
   );
