@@ -242,7 +242,7 @@ function Hero() {
     <section
       ref={ref}
       onMouseMove={onMove}
-      className="relative overflow-hidden pt-40 pb-24  md:pb-32"
+      className="relative overflow-hidden pt-30 pb-24  md:pb-32"
     >
       <div className="absolute inset-0 grid-bg pointer-events-none" aria-hidden />
       <motion.div style={{ background: spotlight }} className="absolute inset-0 pointer-events-none" />
@@ -276,14 +276,9 @@ function Hero() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: false }}
           transition={{ duration: 0.9, ease, delay: 0.4 }}
-          className="mx-auto mt-8 max-w-3xl"
+          className="mx-auto mt-6  max-w-3xl"
         >
-          <div className="inline-flex items-center gap-3 rounded-full border border-primary/20 bg-gradient-to-l from-primary/10 via-secondary/10 to-transparent px-5 py-2 shadow-[var(--shadow-pill)] backdrop-blur-sm">
-            <span className="inline-flex h-2 w-2 rounded-full bg-accent-light shadow-[0_0_6px_rgba(46,196,165,0.5)]" />
-            <span className="text-xs font-medium uppercase tracking-widest text-primary">
-              رسالتنا
-            </span>
-          </div>
+          
 
           <h1 className="mt-6 text-4xl font-semibold tracking-[-0.03em] sm:text-5xl md:text-6xl">
             <span>رحلتك مع القرآن</span>{" "}
