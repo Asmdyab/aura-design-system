@@ -810,8 +810,8 @@ function HowItWorks() {
                       <motion.span
                         animate={{
                           scale: isActive ? 1.15 : 1,
-                          backgroundColor: isActive || isDone ? "oklch(0.18 0 0)" : "oklch(1 0 0)",
-                          color: isActive || isDone ? "oklch(0.985 0 0)" : "oklch(0.55 0 0)",
+                          backgroundColor: isActive || isDone ? "#0F172A" : "#FFFFFF",
+                          color: isActive || isDone ? "#F8FAFC" : "#64748B",
                         }}
                         transition={{ type: "spring", stiffness: 260, damping: 22 }}
                         className="absolute left-0 top-0 inline-flex h-8 w-8 items-center justify-center rounded-full border border-border text-[11px] font-medium"
