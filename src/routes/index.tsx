@@ -889,7 +889,7 @@ function HowItWorks() {
                         animate={{
                           width: j === active ? 24 : 6,
                           backgroundColor:
-                            j <= active ? "oklch(0.18 0 0)" : "oklch(0.92 0 0)",
+                            j <= active ? "#0F172A" : "#E2E8F0",
                         }}
                         transition={{ duration: 0.4, ease }}
                         className="h-1.5 rounded-full"
