@@ -923,7 +923,7 @@ const quotes = [
 function Testimonials() {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
-  const x = useTransform(scrollYProgress, [0, 1], ["2%", "-62%"]);
+  const x = useTransform(scrollYProgress, [0, 1], ["-62%", "60%"]);
 
   return (
     <section ref={ref} className="relative border-t border-border" style={{ height: "260vh" }}>
