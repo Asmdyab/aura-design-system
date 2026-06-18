@@ -129,7 +129,7 @@ function CursorBlob() {
     <motion.div
       aria-hidden
       style={{ x, y }}
-      className="pointer-events-none fixed left-0 top-0 z-[1] hidden h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,oklch(0_0_0/0.06),transparent_60%)] blur-2xl md:block"
+      className="pointer-events-none fixed left-0 top-0 z-[1] hidden h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(15,23,42,0.06),transparent_60%)] blur-2xl md:block"
     />
   );
 }
@@ -140,7 +140,7 @@ function Nav() {
   const { scrollY } = useScroll();
   const width = useTransform(scrollY, [0, 200], ["min(960px, calc(100% - 2rem))", "min(720px, calc(100% - 2rem))"]);
   const padY = useTransform(scrollY, [0, 200], [8, 6]);
-  const bg = useTransform(scrollY, [0, 200], ["oklch(1 0 0 / 0.6)", "oklch(1 0 0 / 0.85)"]);
+  const bg = useTransform(scrollY, [0, 200], ["rgba(248,250,252,0.6)", "rgba(248,250,252,0.85)"]);
 
   return (
     <motion.header
@@ -210,7 +210,7 @@ function Hero() {
   // mouse-tracked spotlight
   const mx = useMotionValue(50);
   const my = useMotionValue(30);
-  const spotlight = useMotionTemplate`radial-gradient(600px circle at ${mx}% ${my}%, oklch(0 0 0 / 0.07), transparent 60%)`;
+  const spotlight = useMotionTemplate`radial-gradient(600px circle at ${mx}% ${my}%, rgba(15,23,42,0.07), transparent 60%)`;
 
   function onMove(e: React.MouseEvent) {
     const r = (e.currentTarget as HTMLElement).getBoundingClientRect();
@@ -445,7 +445,7 @@ function FeatureCard({ f, i }: { f: (typeof features)[number]; i: number }) {
   const ref = useRef<HTMLDivElement>(null);
   const mx = useMotionValue(0);
   const my = useMotionValue(0);
-  const glow = useMotionTemplate`radial-gradient(280px circle at ${mx}px ${my}px, oklch(0 0 0 / 0.06), transparent 70%)`;
+  const glow = useMotionTemplate`radial-gradient(280px circle at ${mx}px ${my}px, rgba(15,23,42,0.06), transparent 70%)`;
 
   function onMove(e: React.MouseEvent) {
     const r = ref.current!.getBoundingClientRect();
@@ -810,8 +810,8 @@ function HowItWorks() {
                       <motion.span
                         animate={{
                           scale: isActive ? 1.15 : 1,
-                          backgroundColor: isActive || isDone ? "oklch(0.18 0 0)" : "oklch(1 0 0)",
-                          color: isActive || isDone ? "oklch(0.985 0 0)" : "oklch(0.55 0 0)",
+                          backgroundColor: isActive || isDone ? "#0F172A" : "#FFFFFF",
+                          color: isActive || isDone ? "#F8FAFC" : "#64748B",
                         }}
                         transition={{ type: "spring", stiffness: 260, damping: 22 }}
                         className="absolute left-0 top-0 inline-flex h-8 w-8 items-center justify-center rounded-full border border-border text-[11px] font-medium"
@@ -889,7 +889,7 @@ function HowItWorks() {
                         animate={{
                           width: j === active ? 24 : 6,
                           backgroundColor:
-                            j <= active ? "oklch(0.18 0 0)" : "oklch(0.92 0 0)",
+                            j <= active ? "#0F172A" : "#E2E8F0",
                         }}
                         transition={{ duration: 0.4, ease }}
                         className="h-1.5 rounded-full"
