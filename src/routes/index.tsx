@@ -722,6 +722,252 @@ function ScrollProgress() {
   );
 }
 
+/* ---------- How it works (sticky scroll-driven) ---------- */
+
+const steps = [
+  {
+    k: "01",
+    title: "Connect your repo",
+    body: "One-click GitHub auth. Codeforge clones, indexes, and learns your conventions in under a minute.",
+    chip: "github.com/acme/api",
+  },
+  {
+    k: "02",
+    title: "Describe the change",
+    body: "Plain English in your editor, terminal, or PR. Codeforge plans the diff before touching a file.",
+    chip: "add stripe checkout flow",
+  },
+  {
+    k: "03",
+    title: "Review the diff",
+    body: "Type-checked, tested, documented. Inline reasoning explains every non-obvious line.",
+    chip: "+482 −37 across 12 files",
+  },
+  {
+    k: "04",
+    title: "Ship to production",
+    body: "Opens a PR, runs CI, waits for green. You merge. Codeforge keeps watching for regressions.",
+    chip: "✓ Deployed to main",
+  },
+];
+
+function HowItWorks() {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start start", "end end"],
+  });
+
+  // map progress → active step index (0..3)
+  const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 28 });
+  const [active, setActive] = useState(0);
+  useEffect(() => {
+    return progress.on("change", (v) => {
+      const i = Math.min(steps.length - 1, Math.max(0, Math.floor(v * steps.length)));
+      setActive(i);
+    });
+  }, [progress]);
+
+  // visual transforms tied directly to scroll
+  const rotate = useTransform(scrollYProgress, [0, 1], [-8, 8]);
+  const yShift = useTransform(scrollYProgress, [0, 1], [-30, 30]);
+  const barScale = useTransform(scrollYProgress, [0, 1], [0, 1]);
+
+  return (
+    <section
+      id="how"
+      ref={ref}
+      className="relative border-t border-border"
+      style={{ height: `${steps.length * 90}vh` }}
+    >
+      <div className="sticky top-0 flex h-screen items-center overflow-hidden">
+        <div className="container mx-auto grid max-w-6xl grid-cols-1 gap-12 px-6 lg:grid-cols-2 lg:gap-20">
+          {/* Left: copy + steps */}
+          <div className="flex flex-col justify-center">
+            <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
+              How it works
+            </p>
+            <h2 className="mt-3 text-4xl font-semibold tracking-[-0.03em] sm:text-5xl">
+              From prompt to PR,
+              <br />
+              <span className="text-muted-foreground">in four moves.</span>
+            </h2>
+
+            {/* progress rail */}
+            <div className="relative mt-10">
+              <div className="absolute left-[15px] top-2 bottom-2 w-px bg-border" aria-hidden />
+              <motion.div
+                style={{ scaleY: barScale }}
+                className="absolute left-[15px] top-2 bottom-2 w-px origin-top bg-foreground"
+                aria-hidden
+              />
+              <ul className="space-y-7">
+                {steps.map((s, i) => {
+                  const isActive = i === active;
+                  const isDone = i < active;
+                  return (
+                    <li key={s.k} className="relative pl-12">
+                      <motion.span
+                        animate={{
+                          scale: isActive ? 1.15 : 1,
+                          backgroundColor: isActive || isDone ? "oklch(0.18 0 0)" : "oklch(1 0 0)",
+                          color: isActive || isDone ? "oklch(0.985 0 0)" : "oklch(0.55 0 0)",
+                        }}
+                        transition={{ type: "spring", stiffness: 260, damping: 22 }}
+                        className="absolute left-0 top-0 inline-flex h-8 w-8 items-center justify-center rounded-full border border-border text-[11px] font-medium"
+                      >
+                        {s.k}
+                      </motion.span>
+                      <motion.div
+                        animate={{ opacity: isActive ? 1 : 0.4, x: isActive ? 0 : -4 }}
+                        transition={{ duration: 0.5, ease }}
+                      >
+                        <h3 className="text-lg font-semibold tracking-tight">{s.title}</h3>
+                        <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                          {s.body}
+                        </p>
+                      </motion.div>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          </div>
+
+          {/* Right: animated visual */}
+          <div className="relative hidden items-center justify-center lg:flex [perspective:1200px]">
+            <motion.div
+              style={{ rotate, y: yShift }}
+              className="absolute h-72 w-72 rounded-3xl border border-dashed border-border"
+            />
+            <motion.div
+              style={{ rotate: useTransform(scrollYProgress, [0, 1], [12, -10]) }}
+              className="absolute h-96 w-96 rounded-full border border-border"
+            />
+
+            <div className="relative w-[360px] [transform-style:preserve-3d]">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={active}
+                  initial={{ opacity: 0, y: 30, rotateX: -15 }}
+                  animate={{ opacity: 1, y: 0, rotateX: 0 }}
+                  exit={{ opacity: 0, y: -30, rotateX: 15 }}
+                  transition={{ duration: 0.6, ease }}
+                  className="rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-elevated)]"
+                >
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <span className="font-mono">step {steps[active].k}</span>
+                    <span className="inline-flex h-2 w-2 rounded-full bg-foreground" />
+                  </div>
+                  <div className="mt-6 font-mono text-sm text-foreground">
+                    <span className="text-muted-foreground">›</span> {steps[active].chip}
+                  </div>
+                  <div className="mt-6 space-y-2">
+                    {[0, 1, 2].map((j) => (
+                      <motion.div
+                        key={j}
+                        initial={{ scaleX: 0 }}
+                        animate={{ scaleX: 1 }}
+                        transition={{ delay: 0.2 + j * 0.12, duration: 0.6, ease }}
+                        style={{ originX: 0 }}
+                        className="h-2 rounded-full bg-secondary"
+                      >
+                        <motion.div
+                          initial={{ scaleX: 0 }}
+                          animate={{ scaleX: [0.2, 0.6, 0.9][j] }}
+                          transition={{ delay: 0.4 + j * 0.12, duration: 0.8, ease }}
+                          style={{ originX: 0 }}
+                          className="h-full rounded-full bg-foreground"
+                        />
+                      </motion.div>
+                    ))}
+                  </div>
+                  <div className="mt-6 flex items-center gap-2">
+                    {steps.map((_, j) => (
+                      <motion.span
+                        key={j}
+                        animate={{
+                          width: j === active ? 24 : 6,
+                          backgroundColor:
+                            j <= active ? "oklch(0.18 0 0)" : "oklch(0.92 0 0)",
+                        }}
+                        transition={{ duration: 0.4, ease }}
+                        className="h-1.5 rounded-full"
+                      />
+                    ))}
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- Testimonials (horizontal scroll-driven) ---------- */
+
+const quotes = [
+  { q: "Codeforge writes the PR I would've written on my best day — in 90 seconds.", a: "Maya Chen", r: "Staff Engineer, Linear" },
+  { q: "We cut migration work from quarters to weeks. The diffs are boring in the best way.", a: "Jonas Weber", r: "CTO, Hover" },
+  { q: "It catches the bug I forgot about three commits ago. Spooky, in a good way.", a: "Priya Natarajan", r: "Eng Lead, Stripe" },
+  { q: "Our juniors ship like seniors. Our seniors ship like demigods.", a: "Tom Ardent", r: "VP Eng, Notion" },
+];
+
+function Testimonials() {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
+  // translate the row horizontally as user scrolls vertically
+  const x = useTransform(scrollYProgress, [0, 1], ["2%", "-62%"]);
+
+  return (
+    <section ref={ref} className="relative border-t border-border" style={{ height: "260vh" }}>
+      <div className="sticky top-0 flex h-screen flex-col justify-center overflow-hidden">
+        <div className="container mx-auto max-w-6xl px-6">
+          <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
+            Loved by builders
+          </p>
+          <h2 className="mt-3 max-w-2xl text-4xl font-semibold tracking-[-0.03em] sm:text-5xl">
+            The teams shipping fastest
+            <br />
+            <span className="text-muted-foreground">use Codeforge.</span>
+          </h2>
+        </div>
+
+        <motion.div style={{ x }} className="mt-14 flex gap-6 px-6 will-change-transform">
+          {quotes.map((q, i) => (
+            <motion.figure
+              key={i}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.8, ease, delay: i * 0.05 }}
+              className="flex h-80 w-[420px] shrink-0 flex-col justify-between rounded-3xl border border-border bg-card p-8 shadow-[var(--shadow-card)]"
+            >
+              <blockquote className="text-xl font-medium leading-snug tracking-[-0.01em] text-foreground">
+                "{q.q}"
+              </blockquote>
+              <figcaption className="flex items-center gap-3">
+                <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-foreground text-xs font-semibold text-background">
+                  {q.a
+                    .split(" ")
+                    .map((p) => p[0])
+                    .join("")}
+                </span>
+                <div className="text-sm">
+                  <div className="font-medium text-foreground">{q.a}</div>
+                  <div className="text-muted-foreground">{q.r}</div>
+                </div>
+              </figcaption>
+            </motion.figure>
+          ))}
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
 function Index() {
   return (
     <main className="relative min-h-screen bg-background text-foreground">
@@ -731,6 +977,8 @@ function Index() {
       <Hero />
       <Logos />
       <Features />
+      <HowItWorks />
+      <Testimonials />
       <Pricing />
       <CTA />
       <Footer />
