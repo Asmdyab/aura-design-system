@@ -423,7 +423,7 @@ function Logos() {
   const logos = ["جامعة الأزهر", "مجمع الملك فهد", "الهيئة العالمية", "رابطة العالم الإسلامي", "جامعة أم القرى", "جامعة الإمام", "وزارة الشؤون الإسلامية", "الندوة العالمية"];
   return (
     <section className="dark-section border-y border-border/60 bg-[#0A5C70] py-12 overflow-hidden">
-      <p className="text-center text-xs font-medium uppercase tracking-widest text-background/60">
+      <p className="text-center text-xl font-bold uppercase tracking-widest text-background/60">
         يشرف على تعليمنا
       </p>
       <div className="relative mt-6 mx-auto max-w-6xl [mask-image:linear-gradient(to_right,transparent,black_15%,black_85%,transparent)]">
@@ -495,15 +495,15 @@ function FeatureCard({ f, i }: { f: (typeof features)[number]; i: number }) {
 
 function Features() {
   return (
-    <section id="البرامج" className="py-28 md:py-36">
+    <section id="البرامج" className="py-14 md:py-20">
       <div className="container mx-auto max-w-6xl px-6">
         <div className="mx-auto max-w-2xl text-center">
           <motion.p
-            initial={{ opacity: 0, y: 12 }}
+            initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: false }}
             transition={{ duration: 0.6, ease }}
-            className="text-xs font-medium uppercase tracking-widest text-muted-foreground"
+            className="text-xl font-medium uppercase tracking-widest text-muted-foreground"
           >
             برامجنا
           </motion.p>
@@ -1022,7 +1022,7 @@ function ToolsShowcase() {
   const headerOpacity = useTransform(scrollYProgress, [0.15, 0.35], [1, 0]);
   const headerBlur = useTransform(scrollYProgress, [0.15, 0.35], [0, 12]);
   const headerFilter = useMotionTemplate`blur(${headerBlur}px)`;
-  const headerY = useTransform(scrollYProgress, [0.05, 0.35], [0, -120]);
+  const headerY = useTransform(scrollYProgress, [0.05, 0.35], [0, 120]);
   const smoothHeaderY = useSpring(headerY, { stiffness: 60, damping: 20 });
 
   const col0Y = useTransform(scrollYProgress, [0.05, 0.4], [columnConfig[0].startOffset, -columnConfig[0].startOffset * columnConfig[0].yMultiplier]);
@@ -1049,7 +1049,7 @@ function ToolsShowcase() {
       className="relative"
       style={{ height: "350vh" }}
     >
-      <div className="sticky top-0 flex h-screen flex-col items-center justify-center overflow-hidden"
+      <div className="sticky py-14 top-0 flex h-screen flex-col items-center justify-start overflow-hidden"
         style={{ background: "oklch(0.965 0 0)" }}
       >
         <motion.div
@@ -1067,7 +1067,7 @@ function ToolsShowcase() {
             {phase === "grid" ? (
               <motion.div
                 key="grid"
-                className="absolute inset-0 flex items-end justify-center gap-3 px-4 pb-8 md:gap-4 md:px-8"
+                className="absolute inset-0 flex items-end justify-center gap-3 px-4 pb-20 md:gap-4 md:px-8"
               >
                 {columnConfig.map((col, ci) => (
                   <motion.div
