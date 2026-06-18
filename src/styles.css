@@ -63,25 +63,25 @@
   --popover: #FFFFFF;
   --popover-foreground: #0F172A;
 
-  --primary: #29477B;
+  --primary: #3B52D4;
   --primary-foreground: #FFFFFF;
 
-  --secondary: #489C9D;
+  --secondary: #0A5C70;
   --secondary-foreground: #FFFFFF;
 
   --muted: #E2E8F0;
   --muted-foreground: #64748B;
 
-  --accent: #3F5EA2;
+  --accent: #3B52D4;
   --accent-foreground: #FFFFFF;
-  --accent-light: #6CC6B8;
+  --accent-light: #2EC4A5;
 
   --destructive: #EF4444;
   --destructive-foreground: #FFFFFF;
 
   --border: #E2E8F0;
   --input: #E2E8F0;
-  --ring: #29477B;
+  --ring: #3B52D4;
 }
 
 @layer base {

@@ -118,21 +118,26 @@ function Counter({ to, suffix = "" }: { to: number; suffix?: string }) {
 function CursorBlob() {
   const x = useSpring(useMotionValue(-200), { stiffness: 120, damping: 20, mass: 0.6 });
   const y = useSpring(useMotionValue(-200), { stiffness: 120, damping: 20, mass: 0.6 });
+  const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
     function onMove(e: MouseEvent) {
       x.set(e.clientX);
       y.set(e.clientY);
+      const el = document.elementFromPoint(e.clientX, e.clientY);
+      setIsDark(!!el?.closest(".dark-section"));
     }
     window.addEventListener("pointermove", onMove);
     return () => window.removeEventListener("pointermove", onMove);
   }, [x, y]);
 
+  const color = isDark ? "rgba(46,196,165,0.15)" : "rgba(59,82,212,0.15)";
+
   return (
     <motion.div
       aria-hidden
-      style={{ x, y }}
-      className="pointer-events-none fixed left-0 top-0 z-[1] hidden h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(15,23,42,0.06),transparent_60%)] blur-2xl md:block"
+      style={{ x, y, background: `radial-gradient(circle, ${color}, transparent 60%)` }}
+      className="pointer-events-none fixed left-0 top-0 z-[1] hidden h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-2xl md:block"
     />
   );
 }
@@ -224,7 +229,7 @@ function Hero() {
 
   const mx = useMotionValue(50);
   const my = useMotionValue(30);
-  const spotlight = useMotionTemplate`radial-gradient(600px circle at ${mx}% ${my}%, rgba(15,23,42,0.07), transparent 60%)`;
+  const spotlight = useMotionTemplate`radial-gradient(600px circle at ${mx}% ${my}%, rgba(59,82,212,0.12), transparent 60%)`;
 
   function onMove(e: React.MouseEvent) {
     const r = (e.currentTarget as HTMLElement).getBoundingClientRect();
@@ -362,8 +367,8 @@ function QuranPreview() {
         }}
         className="overflow-hidden rounded-2xl border border-border bg-card text-right shadow-[var(--shadow-elevated)]"
       >
-        <div className="flex items-center gap-2 border-b border-border bg-secondary/60 px-4 py-2.5">
-          {["#29477B", "#489C9D", "#6CC6B8"].map((c, i) => (
+        <div className="flex items-center gap-2 border-b border-border bg-[#0A5C70] px-4 py-2.5">
+          {["#3B52D4", "#0A5C70", "#2EC4A5"].map((c, i) => (
             <motion.span
               key={i}
               initial={{ scale: 0 }}
@@ -374,7 +379,7 @@ function QuranPreview() {
               style={{ background: c }}
             />
           ))}
-          <span className="mr-3 text-xs text-muted-foreground">
+          <span className="mr-3 text-xs text-background/70">
             القرآن الكريم — سورة الرحمن
           </span>
         </div>
@@ -412,8 +417,8 @@ function QuranPreview() {
 function Logos() {
   const logos = ["جامعة الأزهر", "مجمع الملك فهد", "الهيئة العالمية", "رابطة العالم الإسلامي", "جامعة أم القرى", "جامعة الإمام", "وزارة الشؤون الإسلامية", "الندوة العالمية"];
   return (
-    <section className="border-y border-border/60 bg-secondary/30 py-12 overflow-hidden">
-      <p className="text-center text-xs font-medium uppercase tracking-widest text-muted-foreground">
+    <section className="dark-section border-y border-border/60 bg-[#0A5C70] py-12 overflow-hidden">
+      <p className="text-center text-xs font-medium uppercase tracking-widest text-background/60">
         يشرف على تعليمنا
       </p>
       <div className="relative mt-6 mx-auto max-w-6xl [mask-image:linear-gradient(to_right,transparent,black_15%,black_85%,transparent)]">
@@ -425,7 +430,7 @@ function Logos() {
           {[...logos, ...logos].map((l, i) => (
             <span
               key={i}
-              className="text-lg font-semibold tracking-tight text-muted-foreground/80"
+              className="text-lg font-semibold tracking-tight text-background/80"
             >
               {l}
             </span>
@@ -451,7 +456,7 @@ function FeatureCard({ f, i }: { f: (typeof features)[number]; i: number }) {
   const ref = useRef<HTMLDivElement>(null);
   const mx = useMotionValue(0);
   const my = useMotionValue(0);
-  const glow = useMotionTemplate`radial-gradient(280px circle at ${mx}px ${my}px, rgba(15,23,42,0.06), transparent 70%)`;
+  const glow = useMotionTemplate`radial-gradient(280px circle at ${mx}px ${my}px, rgba(59,82,212,0.12), transparent 70%)`;
 
   function onMove(e: React.MouseEvent) {
     const r = ref.current!.getBoundingClientRect();
@@ -556,14 +561,14 @@ function Pricing() {
   const [active, setActive] = useState(1);
 
   return (
-    <section id="الأسعار" className="border-t border-border bg-secondary/30 py-28 md:py-36">
+    <section id="الأسعار" className="dark-section border-t border-border bg-[#0A5C70] py-28 md:py-36">
       <div className="container mx-auto max-w-6xl px-6">
         <div className="mx-auto max-w-2xl text-center">
-          <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">الباقات</p>
-          <h2 className="mt-3 text-4xl font-semibold tracking-[-0.03em] sm:text-5xl">
+          <p className="text-xs font-medium uppercase tracking-widest text-background/60">الباقات</p>
+          <h2 className="mt-3 text-4xl font-semibold tracking-[-0.03em] text-background sm:text-5xl">
             <WordReveal text="اختر الباقة المناسبة لك." />
           </h2>
-          <p className="mt-4 text-lg text-muted-foreground">مرر فوق الباقة لتحديدها.</p>
+          <p className="mt-4 text-lg text-background/70">مرر فوق الباقة لتحديدها.</p>
         </div>
 
         <div className="mt-16 grid gap-6 md:grid-cols-3">
@@ -1036,7 +1041,7 @@ function ToolsShowcase() {
         >
           <h2 className="text-5xl font-semibold tracking-[-0.03em] sm:text-6xl md:text-7xl">
             مكتبة قرآنية متكاملة{" "}
-            <span style={{ color: "oklch(0.55 0.18 260)" }}>من الموارد والمراجع</span>
+            <span style={{ color: "oklch(0.5 0.2 270)" }}>من الموارد والمراجع</span>
           </h2>
         </motion.div>
 
