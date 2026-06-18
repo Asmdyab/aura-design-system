@@ -968,6 +968,268 @@ function Testimonials() {
   );
 }
 
+/* ---------- Tools Showcase (Devin-style scroll animation) ---------- */
+
+const toolCards = [
+  { name: "Jira", icon: (
+    <svg viewBox="0 0 24 24" fill="currentColor" className="h-7 w-7 opacity-40"><path d="M11.53 2c0 5.1 4.14 9.24 9.24 9.24h.76v.76c0 5.1-4.14 9.24-9.24 9.24H2v-9.24C2 6.9 6.43 2.47 11.53 2z"/></svg>
+  )},
+  { name: "Notion", icon: (
+    <svg viewBox="0 0 24 24" fill="currentColor" className="h-7 w-7 opacity-40"><path d="M4 3h10l6 6v12H4V3zm10 1.5V9h4.5L14 4.5zM6 5v14h12V10h-5V5H6z"/></svg>
+  )},
+  { name: "Figma", icon: (
+    <svg viewBox="0 0 24 24" fill="currentColor" className="h-7 w-7 opacity-40"><path d="M8 24a4 4 0 004-4v-4H8a4 4 0 000 8zm0-20a4 4 0 000 8h4V4H8zm8 0h-4v8h4a4 4 0 000-8zm-4 12h4a4 4 0 11-4 0zm8-8a4 4 0 11-4 4 4 4 0 014-4z"/></svg>
+  )},
+  { name: "Vercel", icon: (
+    <svg viewBox="0 0 24 24" fill="currentColor" className="h-7 w-7 opacity-40"><path d="M12 2L2 22h20L12 2z"/></svg>
+  )},
+  { name: "AWS", icon: (
+    <svg viewBox="0 0 24 24" fill="currentColor" className="h-6 w-6 opacity-40"><path d="M6.76 11.24l1.42 1.42L12 8.83l3.83 3.83 1.41-1.42L12 6 6.76 11.24zM12 2a10 10 0 100 20 10 10 0 000-20z"/></svg>
+  )},
+  { name: "Sentry", icon: (
+    <svg viewBox="0 0 24 24" fill="currentColor" className="h-7 w-7 opacity-40"><path d="M13.93 2.18a2.07 2.07 0 00-3.59 0L.41 19.46A2.07 2.07 0 002.2 22.5h6.09a.69.69 0 000-1.38H2.2a.69.69 0 01-.6-1L11.54 3a.69.69 0 011.2 0l4.37 7.57a7.35 7.35 0 00-3.84 6.14.69.69 0 001.38.08 6 6 0 013.47-5.13l2.25 3.89a2.07 2.07 0 01-1.79 3.1h-1a.69.69 0 000 1.39h1A3.45 3.45 0 0021.56 16z"/></svg>
+  )},
+  { name: "Datadog", icon: (
+    <svg viewBox="0 0 24 24" fill="currentColor" className="h-7 w-7 opacity-40"><circle cx="12" cy="12" r="10"/></svg>
+  )},
+  { name: "Stripe", icon: (
+    <svg viewBox="0 0 24 24" fill="currentColor" className="h-6 w-6 opacity-40"><path d="M13.48 8.26c0-.84.7-1.17 1.85-1.17a12.12 12.12 0 015.1 1.33V4.14a14.32 14.32 0 00-5.1-.86C11.5 3.28 9 5.18 9 8.45c0 5 6.91 4.2 6.91 6.36 0 1-.87 1.32-2.08 1.32a13.24 13.24 0 01-5.56-1.52v4.33A15 15 0 0013.83 20c3.88 0 6.55-1.92 6.55-5.22 0-5.4-6.9-4.44-6.9-6.52z"/></svg>
+  )},
+  { name: "MongoDB", icon: (
+    <svg viewBox="0 0 24 24" fill="currentColor" className="h-7 w-7 opacity-40"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15v-4H7l5-7v4h4l-5 7z"/></svg>
+  )},
+  { name: "PostgreSQL", icon: (
+    <svg viewBox="0 0 24 24" fill="currentColor" className="h-7 w-7 opacity-40"><path d="M17.13 4.57a7.38 7.38 0 00-4.53-1.57c-1.8 0-3.24.53-4.3 1.37A6.49 6.49 0 006 8.91c0 3.35 2.62 5.71 6.49 5.71h.07c3.49 0 5.8-1.96 6.24-4.98.18-1.19-.08-2.78-1.67-5.07zM12 22a10 10 0 110-20 10 10 0 010 20z"/></svg>
+  )},
+  { name: "Docker", icon: (
+    <svg viewBox="0 0 24 24" fill="currentColor" className="h-7 w-7 opacity-40"><path d="M20.83 10.2a4.42 4.42 0 00-2.12-.72 6.65 6.65 0 00-.69-2A3.1 3.1 0 0016.38 6l-.41-.26-.3.37a4.73 4.73 0 00-.68 1.47c-.25.94-.1 1.83.43 2.58a5.18 5.18 0 01-1.84.44H2.55A.55.55 0 002 11.15a9.9 9.9 0 00.58 3.52A5.52 5.52 0 005 17.78c1.3.86 3.42 1.22 5.76 1.22a15.84 15.84 0 004.08-.5 10.6 10.6 0 003.22-1.65 9.09 9.09 0 002.14-2.42A8.24 8.24 0 0021.5 11a.42.42 0 00-.02-.02 3.04 3.04 0 00-.65-.78zM4 10h2V8H4v2zm3 0h2V8H7v2zm0 3h2v-2H7v2zm3-3h2V8h-2v2zm0 3h2v-2h-2v2zm3-3h2V8h-2v2zm0 3h2v-2h-2v2zm3-3h2V8h-2v2z"/></svg>
+  )},
+  { name: "Snowflake", icon: (
+    <svg viewBox="0 0 24 24" fill="currentColor" className="h-7 w-7 opacity-40"><path d="M12 2l1.09 3.41L16 4l-1.09 3.41L18.32 6l-1.91 2.91L20 9.82l-3.41 1.09L18 14l-3.41-1.09L16 16l-2.91-1.91L12 18l-1.09-3.91L8 16l1.09-3.09L5.68 14l1.91-2.91L4 10.18l3.41-1.09L6 6l3.41 1.09L8 4l2.91 1.91L12 2z"/></svg>
+  )},
+];
+
+// Column layout: 7 columns with different vertical offsets for parallax
+const columnConfig = [
+  { cards: [0, 1], yMultiplier: 1.2, startOffset: 120 },
+  { cards: [2, 3], yMultiplier: 0.7, startOffset: 40 },
+  { cards: [4, 5], yMultiplier: 1.0, startOffset: 80 },
+  { cards: [6], yMultiplier: 0.5, startOffset: 0 },
+  { cards: [7, 8], yMultiplier: 0.9, startOffset: 60 },
+  { cards: [9, 10], yMultiplier: 0.6, startOffset: 20 },
+  { cards: [11], yMultiplier: 1.1, startOffset: 100 },
+];
+
+const integrations = [
+  {
+    name: "GitHub",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="currentColor" className="h-8 w-8"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+    ),
+    desc: "Codeforge ships PRs the way your team does — picking up review feedback and CI results to get each PR approved and merged.",
+  },
+  {
+    name: "Linear",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="currentColor" className="h-8 w-8"><path d="M3.36 7.14l13.5 13.5c-.87.28-1.8.36-2.74.36C8.27 21 3 15.73 3 9.88c0-.94.08-1.87.36-2.74zm-1 4.38A9.1 9.1 0 0012.48 21.62L2.36 11.52zM21.64 12.48A9.1 9.1 0 0011.52 2.36L21.64 12.48zm-.28-1.34C20.57 6.24 17.76 3.43 14.86 2.64L21.36 9.14c-.28.87-.36 1.8-.36 2z"/></svg>
+    ),
+    desc: "Assign Codeforge tickets directly in Linear, or add a Codeforge label.",
+  },
+  {
+    name: "Slack",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="currentColor" className="h-8 w-8"><path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zm1.271 0a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313zM8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834zm0 1.271a2.528 2.528 0 0 1 2.521 2.521 2.528 2.528 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312zm10.122 2.521a2.528 2.528 0 0 1 2.522-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522 2.521h-2.522V8.834zm-1.268 0a2.528 2.528 0 0 1-2.523 2.521 2.527 2.527 0 0 1-2.52-2.521V2.522A2.527 2.527 0 0 1 15.165 0a2.528 2.528 0 0 1 2.523 2.522v6.312zm-2.523 10.122a2.528 2.528 0 0 1 2.523 2.522A2.528 2.528 0 0 1 15.165 24a2.527 2.527 0 0 1-2.52-2.522v-2.522h2.52zm0-1.268a2.527 2.527 0 0 1-2.52-2.523 2.527 2.527 0 0 1 2.52-2.52h6.313A2.528 2.528 0 0 1 24 15.165a2.528 2.528 0 0 1-2.522 2.523h-6.313z"/></svg>
+    ),
+    desc: "Tag Codeforge in any conversation to surface relevant context, dig into issues, or turn discussions directly into PRs.",
+  },
+];
+
+function ToolsShowcase() {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "end start"],
+  });
+
+  // Phase transitions based on scroll progress
+  const headerOpacity = useTransform(scrollYProgress, [0.15, 0.35], [1, 0]);
+  const headerBlur = useTransform(scrollYProgress, [0.15, 0.35], [0, 12]);
+  const headerFilter = useMotionTemplate`blur(${headerBlur}px)`;
+  const headerY = useTransform(scrollYProgress, [0.05, 0.35], [0, -120]);
+
+  // Grid cards fade & rise
+  const gridOpacity = useTransform(scrollYProgress, [0.05, 0.15, 0.4, 0.5], [0, 1, 1, 0]);
+  const gridY = useTransform(scrollYProgress, [0.05, 0.15, 0.4, 0.5], [200, 0, -100, -300]);
+
+  // Integration cards phase
+  const intOpacity = useTransform(scrollYProgress, [0.45, 0.55], [0, 1]);
+  const intY = useTransform(scrollYProgress, [0.45, 0.55], [80, 0]);
+
+  const [activeInt, setActiveInt] = useState(1);
+
+  // Spring-smoothed values
+  const smoothGridY = useSpring(gridY, { stiffness: 60, damping: 20 });
+  const smoothHeaderY = useSpring(headerY, { stiffness: 60, damping: 20 });
+  const smoothIntY = useSpring(intY, { stiffness: 60, damping: 20 });
+
+  return (
+    <section
+      ref={sectionRef}
+      id="tools"
+      className="relative"
+      style={{ height: "350vh" }}
+    >
+      <div className="sticky top-0 flex h-screen flex-col items-center justify-center overflow-hidden"
+        style={{ background: "oklch(0.965 0 0)" }}
+      >
+        {/* Header */}
+        <motion.div
+          style={{ opacity: headerOpacity, filter: headerFilter, y: smoothHeaderY }}
+          className="absolute z-10 text-center px-6"
+        >
+          <h2 className="text-5xl font-semibold tracking-[-0.03em] sm:text-6xl md:text-7xl">
+            Able to work with{" "}
+            <span style={{ color: "oklch(0.55 0.18 260)" }}>hundreds of tools</span>
+          </h2>
+        </motion.div>
+
+        {/* Tool cards grid */}
+        <motion.div
+          style={{ opacity: gridOpacity, y: smoothGridY }}
+          className="absolute inset-0 flex items-end justify-center gap-3 px-4 pb-8 md:gap-4 md:px-8"
+        >
+          {columnConfig.map((col, ci) => (
+            <motion.div
+              key={ci}
+              className="flex flex-col gap-3 md:gap-4"
+              style={{
+                y: useTransform(
+                  scrollYProgress,
+                  [0.05, 0.4],
+                  [col.startOffset, -col.startOffset * col.yMultiplier]
+                ),
+              }}
+            >
+              {col.cards.map((cardIdx) => {
+                const tool = toolCards[cardIdx];
+                return (
+                  <div
+                    key={cardIdx}
+                    className="flex h-28 w-28 items-center justify-center rounded-2xl border border-border/50 sm:h-36 sm:w-36 md:h-44 md:w-44 lg:h-48 lg:w-48"
+                    style={{ background: "oklch(0.975 0 0)" }}
+                  >
+                    {tool.icon}
+                  </div>
+                );
+              })}
+            </motion.div>
+          ))}
+        </motion.div>
+
+        {/* Integration showcase cards */}
+        <motion.div
+          style={{ opacity: intOpacity, y: smoothIntY }}
+          className="absolute inset-x-0 flex items-center justify-center gap-4 px-4 md:gap-6 md:px-8"
+        >
+          {integrations.map((int, i) => {
+            const isActive = i === activeInt;
+            return (
+              <motion.div
+                key={int.name}
+                onClick={() => setActiveInt(i)}
+                animate={{
+                  flex: isActive ? 3 : 1,
+                }}
+                transition={{ type: "spring", stiffness: 200, damping: 28 }}
+                className="relative cursor-pointer overflow-hidden rounded-3xl"
+                style={{
+                  height: "min(70vh, 520px)",
+                  minWidth: isActive ? 0 : 100,
+                }}
+              >
+                {/* Active state: dark bg with content */}
+                <AnimatePresence>
+                  {isActive && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.4 }}
+                      className="absolute inset-0 flex flex-col items-center rounded-3xl bg-foreground text-background p-8 md:p-12"
+                    >
+                      <div className="flex items-center gap-3 mt-4">
+                        <span className="text-background">{int.icon}</span>
+                        <span className="text-3xl font-semibold tracking-tight md:text-4xl">{int.name}</span>
+                      </div>
+                      <p className="mt-4 max-w-md text-center text-sm leading-relaxed text-background/70 md:text-base">
+                        {int.desc}
+                      </p>
+                      {/* Fake screenshot area */}
+                      <div className="mt-6 w-full max-w-lg flex-1 overflow-hidden rounded-xl border border-white/10 bg-white/5 shadow-2xl">
+                        <div className="flex items-center gap-1.5 border-b border-white/10 px-4 py-2.5">
+                          <span className="h-2.5 w-2.5 rounded-full bg-red-400/60" />
+                          <span className="h-2.5 w-2.5 rounded-full bg-yellow-400/60" />
+                          <span className="h-2.5 w-2.5 rounded-full bg-green-400/60" />
+                          <span className="ml-3 text-xs text-white/40 font-mono">{int.name.toLowerCase()}.com</span>
+                        </div>
+                        <div className="p-4 space-y-3">
+                          {[0, 1, 2, 3].map((j) => (
+                            <motion.div
+                              key={j}
+                              initial={{ scaleX: 0 }}
+                              animate={{ scaleX: 1 }}
+                              transition={{ delay: 0.2 + j * 0.1, duration: 0.5, ease }}
+                              style={{ originX: 0 }}
+                              className="h-3 rounded-full bg-white/10"
+                            >
+                              <motion.div
+                                initial={{ scaleX: 0 }}
+                                animate={{ scaleX: [0.3, 0.5, 0.8, 0.6][j] }}
+                                transition={{ delay: 0.4 + j * 0.1, duration: 0.6, ease }}
+                                style={{ originX: 0 }}
+                                className="h-full rounded-full bg-white/20"
+                              />
+                            </motion.div>
+                          ))}
+                          <div className="mt-4 flex items-start gap-3">
+                            <div className="h-8 w-8 shrink-0 rounded-full bg-white/15" />
+                            <div className="flex-1 space-y-2">
+                              <div className="h-2.5 w-24 rounded bg-white/15" />
+                              <div className="h-2 w-full rounded bg-white/8" />
+                              <div className="h-2 w-3/4 rounded bg-white/8" />
+                            </div>
+                          </div>
+                          <div className="flex items-start gap-3">
+                            <div className="h-8 w-8 shrink-0 rounded-full bg-blue-400/20" />
+                            <div className="flex-1 space-y-2">
+                              <div className="h-2.5 w-20 rounded bg-white/15" />
+                              <div className="h-2 w-full rounded bg-white/8" />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* Collapsed state: light bg with icon */}
+                {!isActive && (
+                  <div
+                    className="flex h-full items-center justify-center rounded-3xl border border-border/50"
+                    style={{ background: "oklch(0.955 0 0)" }}
+                  >
+                    <span className="text-muted-foreground/50">{int.icon}</span>
+                  </div>
+                )}
+              </motion.div>
+            );
+          })}
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
 function Index() {
   return (
     <main className="relative min-h-screen bg-background text-foreground">
@@ -977,6 +1239,7 @@ function Index() {
       <Hero />
       <Logos />
       <Features />
+      <ToolsShowcase />
       <HowItWorks />
       <Testimonials />
       <Pricing />
