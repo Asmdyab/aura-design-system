@@ -445,7 +445,7 @@ function FeatureCard({ f, i }: { f: (typeof features)[number]; i: number }) {
   const ref = useRef<HTMLDivElement>(null);
   const mx = useMotionValue(0);
   const my = useMotionValue(0);
-  const glow = useMotionTemplate`radial-gradient(280px circle at ${mx}px ${my}px, oklch(0 0 0 / 0.06), transparent 70%)`;
+  const glow = useMotionTemplate`radial-gradient(280px circle at ${mx}px ${my}px, rgba(15,23,42,0.06), transparent 70%)`;
 
   function onMove(e: React.MouseEvent) {
     const r = ref.current!.getBoundingClientRect();
