@@ -140,7 +140,7 @@ function Nav() {
   const { scrollY } = useScroll();
   const width = useTransform(scrollY, [0, 200], ["min(960px, calc(100% - 2rem))", "min(720px, calc(100% - 2rem))"]);
   const padY = useTransform(scrollY, [0, 200], [8, 6]);
-  const bg = useTransform(scrollY, [0, 200], ["oklch(1 0 0 / 0.6)", "oklch(1 0 0 / 0.85)"]);
+  const bg = useTransform(scrollY, [0, 200], ["rgba(248,250,252,0.6)", "rgba(248,250,252,0.85)"]);
 
   return (
     <motion.header
