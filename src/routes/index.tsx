@@ -76,11 +76,10 @@ function WordReveal({ text, className = "" }: { text: string; className?: string
   return (
     <span className={className}>
       {words.map((w, i) => (
-        <span key={i} className="inline-block overflow-hidden align-bottom">
+        <span key={i} className="inline-block overflow-visible align-bottom">
           <motion.span
             initial={{ y: "110%" }}
-            whileInView={{ y: "0%" }}
-            viewport={{ once: true, margin: "-80px" }}
+            animate={{ y: "0%" }}
             transition={{ duration: 0.9, ease, delay: i * 0.06 }}
             className="inline-block pr-[0.25em]"
           >
@@ -181,7 +180,7 @@ function Nav() {
           <img
             src={logoSrc}
             alt="أكاديمية القرآن"
-            className="h-8 w-auto"
+            className="h-12 w-auto"
           />
         </a>
         <ul className="hidden items-center gap-1 text-sm text-muted-foreground md:flex">
@@ -241,7 +240,7 @@ function Hero() {
     <section
       ref={ref}
       onMouseMove={onMove}
-      className="relative overflow-hidden pt-40 pb-24 md:pt-48 md:pb-32"
+      className="relative overflow-hidden pt-40 pb-24  md:pb-32"
     >
       <div className="absolute inset-0 grid-bg pointer-events-none" aria-hidden />
       <motion.div style={{ background: spotlight }} className="absolute inset-0 pointer-events-none" />
@@ -268,23 +267,32 @@ function Hero() {
           <ArrowLeft className="h-3 w-3" />
         </motion.a>
 
-        <h1 className="mt-6 text-5xl font-semibold leading-[0.95] tracking-[-0.03em] text-foreground sm:text-6xl md:text-7xl">
-          <WordReveal text="تعلم القرآن الكريم" />
-          <br />
-          <WordReveal text="بالتجويد والتدبر" className="text-muted-foreground" />
-          <WordReveal text="مع نخبة المعلمين" />
-        </h1>
+        
 
-        <motion.p
-          initial={{ opacity: 0, y: 16 }}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.9, ease, delay: 0.4 }}
-          className="mx-auto mt-7 max-w-xl text-lg leading-relaxed text-muted-foreground"
+          className="mx-auto mt-8 max-w-3xl"
         >
-          رحلتك مع القرآن تبدأ هنا — برامج تعليمية متكاملة للحفظ والتجويد والتفسير
-          بإشراف نخبة من المعلمين المجازين بأعلى الأسانيد.
-        </motion.p>
+          <div className="inline-flex items-center gap-3 rounded-full border border-primary/20 bg-gradient-to-l from-primary/10 via-secondary/10 to-transparent px-5 py-2 shadow-[var(--shadow-pill)] backdrop-blur-sm">
+            <span className="inline-flex h-2 w-2 rounded-full bg-accent-light shadow-[0_0_6px_rgba(46,196,165,0.5)]" />
+            <span className="text-xs font-medium uppercase tracking-widest text-primary">
+              رسالتنا
+            </span>
+          </div>
+
+          <h1 className="mt-6 text-4xl font-semibold tracking-[-0.03em] sm:text-5xl md:text-6xl">
+            <span>رحلتك مع القرآن</span>{" "}
+            <span className="text-primary">تبدأ هنا</span>
+          </h1>
+
+          <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-muted-foreground">
+            برامج تعليمية متكاملة للحفظ والتجويد والتفسير بإشراف نخبة من المعلمين
+            المجازين بأعلى الأسانيد.
+          </p>
+        </motion.div>
 
         <motion.div
           initial={{ opacity: 0, y: 16 }}
@@ -699,7 +707,7 @@ function Footer() {
           <img
             src={logoSrc}
             alt="أكاديمية القرآن"
-            className="h-8 w-auto"
+            className="h-12 w-auto"
           />
         </div>
         <p className="text-sm text-muted-foreground">
