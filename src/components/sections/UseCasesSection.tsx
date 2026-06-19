@@ -425,7 +425,7 @@ function MobileAccordionCard({
 
 const tileHeights = [
   "clamp(90px, 13vw, 150px)",
-  "clamp(110px, 17vw, 195px)",
+  "clamp(110px, 17vw, 295px)",
   "clamp(100px, 15vw, 175px)",
 ];
 
@@ -464,21 +464,21 @@ export function UseCasesSection() {
   });
 
   /* ---- header fade / blur (mirrors ToolsShowcase) ---- */
-  const headerOpacity = useTransform(scrollYProgress, [0.12, 0.32], [1, 0]);
-  const headerBlur = useTransform(scrollYProgress, [0.12, 0.32], [0, 12]);
+  const headerOpacity = useTransform(scrollYProgress, [0.30, 0.40], [1, 0]);
+  const headerBlur = useTransform(scrollYProgress, [0.30, 0.40], [0, 12]);
   const headerFilter = useMotionTemplate`blur(${headerBlur}px)`;
   const headerY = useTransform(scrollYProgress, [0.05, 0.32], [0, 100]);
   const smoothHeaderY = useSpring(headerY, { stiffness: 60, damping: 20 });
 
   /* ---- preview tile parallax (mirrors columnConfig) ---- */
-  const tileY0 = useTransform(scrollYProgress, [0.05, 0.38], [100, -80]);
-  const tileY1 = useTransform(scrollYProgress, [0.05, 0.38], [60, -40]);
-  const tileY2 = useTransform(scrollYProgress, [0.05, 0.38], [80, -60]);
+  const tileY0 = useTransform(scrollYProgress, [0.10, 0.38], [100, -80]);
+  const tileY1 = useTransform(scrollYProgress, [0, 0.38], [60, -40]);
+  const tileY2 = useTransform(scrollYProgress, [0.20, 0.38], [80, -60]);
   const tileYs = [tileY0, tileY1, tileY2];
 
   useMotionValueEvent(scrollYProgress, "change", (v) => {
     if (v > 0.36 && phase === "grid") setPhase("morph");
-    if (v < 0.22 && phase !== "grid") setPhase("grid");
+    if (v < 0.36 && phase !== "grid") setPhase("grid");
   });
 
   return (
@@ -511,6 +511,7 @@ export function UseCasesSection() {
           </motion.div>
 
           <motion.h2
+        
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: false, margin: "-80px" }}

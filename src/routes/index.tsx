@@ -26,6 +26,12 @@ import {
   Check,
   Facebook,
   Twitter,
+  BookAudio,
+  Mic,
+  FileX,
+  HelpCircle,
+  Pen,
+  Headphones,
 } from "lucide-react";
 import { UseCasesSection } from "@/components/sections/UseCasesSection";
 import logoSrc from "../assets/logo.png";
@@ -183,7 +189,7 @@ function Nav() {
           <img
             src={logoSrc}
             alt="أكاديمية القرآن"
-            className="h-12 w-auto"
+            className="h-17 w-auto"
           />
         </a>
         <ul className="hidden items-center gap-1 text-sm text-muted-foreground md:flex">
@@ -968,18 +974,18 @@ function Testimonials() {
 /* ---------- Tools / Resources ---------- */
 
 const resourceCards = [
-  { name: "المصحف الشريف" },
-  { name: "تفسير الطبري" },
-  { name: "تفسير ابن كثير" },
-  { name: "صحيح البخاري" },
-  { name: "معجم اللغة" },
-  { name: "أحكام التجويد" },
-  { name: "القراءات العشر" },
-  { name: "الناسخ والمنسوخ" },
-  { name: "أسباب النزول" },
-  { name: "إعراب القرآن" },
-  { name: "بلاغة القرآن" },
-  { name: "مقارئ إلكترونية" },
+  { name: "المصحف الشريف", icon: BookOpen },
+  { name: "تفسير الطبري", icon: ScrollText },
+  { name: "تفسير ابن كثير", icon: BookMarked },
+  { name: "صحيح البخاري", icon: Library },
+  { name: "معجم اللغة", icon: BookOpen },
+  { name: "أحكام التجويد", icon: BookAudio },
+  { name: "القراءات العشر", icon: Mic },
+  { name: "الناسخ والمنسوخ", icon: FileX },
+  { name: "أسباب النزول", icon: HelpCircle },
+  { name: "إعراب القرآن", icon: Pen },
+  { name: "بلاغة القرآن", icon: Sparkles },
+  { name: "مقارئ إلكترونية", icon: Headphones },
 ];
 
 const cardHeights = [
@@ -1024,17 +1030,17 @@ function ToolsShowcase() {
     offset: ["start end", "end start"],
   });
 
-  const headerOpacity = useTransform(scrollYProgress, [0.15, 0.35], [1, 0]);
-  const headerBlur = useTransform(scrollYProgress, [0.15, 0.35], [0, 12]);
+  const headerOpacity = useTransform(scrollYProgress, [0.30, 0.40], [1, 0]);
+  const headerBlur = useTransform(scrollYProgress, [0.20, 0.40], [0, 12]);
   const headerFilter = useMotionTemplate`blur(${headerBlur}px)`;
-  const headerY = useTransform(scrollYProgress, [0.05, 0.35], [0, 120]);
+  const headerY = useTransform(scrollYProgress, [0.10, 0.35], [0, 220]);
   const smoothHeaderY = useSpring(headerY, { stiffness: 60, damping: 20 });
 
   const col0Y = useTransform(scrollYProgress, [0.05, 0.4], [columnConfig[0].startOffset, -columnConfig[0].startOffset * columnConfig[0].yMultiplier]);
   const col1Y = useTransform(scrollYProgress, [0.05, 0.4], [columnConfig[1].startOffset, -columnConfig[1].startOffset * columnConfig[1].yMultiplier]);
   const col2Y = useTransform(scrollYProgress, [0.05, 0.4], [columnConfig[2].startOffset, -columnConfig[2].startOffset * columnConfig[2].yMultiplier]);
-  const col3Y = useTransform(scrollYProgress, [0.05, 0.4], [columnConfig[3].startOffset, -columnConfig[3].startOffset * columnConfig[3].yMultiplier]);
-  const col4Y = useTransform(scrollYProgress, [0.05, 0.4], [columnConfig[4].startOffset, -columnConfig[4].startOffset * columnConfig[4].yMultiplier]);
+  const col3Y = useTransform(scrollYProgress, [0.35, 0.4], [columnConfig[3].startOffset, -columnConfig[3].startOffset * columnConfig[3].yMultiplier]);
+  const col4Y = useTransform(scrollYProgress, [0.5, 0.0], [columnConfig[4].startOffset, -columnConfig[4].startOffset * columnConfig[4].yMultiplier]);
   const col5Y = useTransform(scrollYProgress, [0.05, 0.4], [columnConfig[5].startOffset, -columnConfig[5].startOffset * columnConfig[5].yMultiplier]);
   const col6Y = useTransform(scrollYProgress, [0.05, 0.4], [columnConfig[6].startOffset, -columnConfig[6].startOffset * columnConfig[6].yMultiplier]);
   const colYs = [col0Y, col1Y, col2Y, col3Y, col4Y, col5Y, col6Y];
@@ -1044,7 +1050,7 @@ function ToolsShowcase() {
 
   useMotionValueEvent(scrollYProgress, "change", (v) => {
     if (v > 0.38 && phase === "grid") setPhase("morph");
-    if (v < 0.25 && phase !== "grid") setPhase("grid");
+    if (v < 0.38 && phase !== "grid") setPhase("grid");
   });
 
   return (
@@ -1088,9 +1094,10 @@ function ToolsShowcase() {
                           key={cardIdx}
                           layoutId={morphEntry ? `morph-${morphEntry.integrationIdx}` : undefined}
                           exit={{ opacity: 0, transition: { duration: 0.12 } }}
-                          className="flex w-24 items-center justify-center rounded-2xl border border-border/50 sm:w-32 md:w-40 lg:w-44"
+                          className="flex w-24 flex-col items-center justify-center gap-2 rounded-2xl border-2 border-border/70 shadow-md sm:w-32 md:w-40 lg:w-44"
                           style={{ background: "oklch(0.975 0 0)", height: `${cardHeights[cardIdx]}px` }}
                         >
+                          <resource.icon className="w-5 h-5 text-muted-foreground/80" />
                           <span className="text-xs md:text-sm font-semibold text-muted-foreground text-center leading-relaxed px-2">
                             {resource.name}
                           </span>
