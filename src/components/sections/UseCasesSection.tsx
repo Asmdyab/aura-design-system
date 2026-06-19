@@ -423,6 +423,12 @@ function MobileAccordionCard({
   );
 }
 
+const tileHeights = [
+  "clamp(90px, 13vw, 150px)",
+  "clamp(110px, 17vw, 195px)",
+  "clamp(100px, 15vw, 175px)",
+];
+
 /* Preview tile shown before morph */
 function PreviewTile({ data, index }: { data: UseCaseData; index: number }) {
   const Icon = data.icon;
@@ -434,7 +440,7 @@ function PreviewTile({ data, index }: { data: UseCaseData; index: number }) {
       style={{
         background: `linear-gradient(135deg, ${data.gradientFrom}, ${data.gradientTo})`,
         width: "clamp(90px, 13vw, 160px)",
-        height: "clamp(90px, 13vw, 160px)",
+        height: tileHeights[index],
       }}
       transition={{ delay: index * 0.06, duration: 0.5, ease }}
     >

@@ -982,6 +982,10 @@ const resourceCards = [
   { name: "مقارئ إلكترونية" },
 ];
 
+const cardHeights = [
+  96, 200, 148, 112, 136, 104, 120, 170, 100, 132, 250, 290,
+];
+
 const columnConfig = [
   { cards: [0, 1], yMultiplier: 1.2, startOffset: 120 },
   { cards: [2, 3], yMultiplier: 0.7, startOffset: 40 },
@@ -1084,8 +1088,8 @@ function ToolsShowcase() {
                           key={cardIdx}
                           layoutId={morphEntry ? `morph-${morphEntry.integrationIdx}` : undefined}
                           exit={{ opacity: 0, transition: { duration: 0.12 } }}
-                          className="flex h-24 w-24 items-center justify-center rounded-2xl border border-border/50 sm:h-32 sm:w-32 md:h-40 md:w-40 lg:h-44 lg:w-44"
-                          style={{ background: "oklch(0.975 0 0)" }}
+                          className="flex w-24 items-center justify-center rounded-2xl border border-border/50 sm:w-32 md:w-40 lg:w-44"
+                          style={{ background: "oklch(0.975 0 0)", height: `${cardHeights[cardIdx]}px` }}
                         >
                           <span className="text-xs md:text-sm font-semibold text-muted-foreground text-center leading-relaxed px-2">
                             {resource.name}
