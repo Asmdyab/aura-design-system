@@ -465,28 +465,14 @@ const features = [
 ];
 
 function FeatureCard({ f, i }: { f: (typeof features)[number]; i: number }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const mx = useMotionValue(0);
-  const my = useMotionValue(0);
-  const glow = useMotionTemplate`radial-gradient(280px circle at ${mx}px ${my}px, rgba(59,82,212,0.12), transparent 70%)`;
-
-  function onMove(e: React.MouseEvent) {
-    const r = ref.current!.getBoundingClientRect();
-    mx.set(e.clientX - r.left);
-    my.set(e.clientY - r.top);
-  }
-
   return (
     <motion.div
-      ref={ref}
-      onMouseMove={onMove}
       initial={{ opacity: 0, y: 32 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: false, margin: "-60px" }}
       transition={{ duration: 0.8, ease, delay: i * 0.07 }}
-      className="group relative overflow-hidden bg-card p-8"
+      className="group relative p-8"
     >
-      <motion.div style={{ background: glow }} className="pointer-events-none absolute inset-0" />
       <motion.div
         whileHover={{ rotate: -6, scale: 1.1 }}
         transition={{ type: "spring", stiffness: 300, damping: 15 }}
@@ -501,6 +487,17 @@ function FeatureCard({ f, i }: { f: (typeof features)[number]; i: number }) {
 }
 
 function Features() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const mx = useMotionValue(0);
+  const my = useMotionValue(0);
+  const glow = useMotionTemplate`radial-gradient(600px circle at ${mx}px ${my}px, rgba(59,82,212,0.12), transparent 70%)`;
+
+  function onMove(e: React.MouseEvent) {
+    const r = containerRef.current!.getBoundingClientRect();
+    mx.set(e.clientX - r.left);
+    my.set(e.clientY - r.top);
+  }
+
   return (
     <section id="البرامج" className="py-14 md:py-20">
       <div className="container mx-auto max-w-6xl px-6">
@@ -528,10 +525,17 @@ function Features() {
           </motion.p>
         </div>
 
-        <div className="mt-16 grid gap-px overflow-hidden rounded-3xl  sm:grid-cols-2 lg:grid-cols-3">
-          {features.map((f, i) => (
-            <FeatureCard key={f.title} f={f} i={i} />
-          ))}
+        <div
+          ref={containerRef}
+          onMouseMove={onMove}
+          className="relative mt-16 overflow-hidden rounded-3xl border border-border bg-card"
+        >
+          <motion.div style={{ background: glow }} className="pointer-events-none absolute inset-0" />
+          <div className="relative grid sm:grid-cols-2 lg:grid-cols-3 divide-x divide-y divide-border">
+            {features.map((f, i) => (
+              <FeatureCard key={f.title} f={f} i={i} />
+            ))}
+          </div>
         </div>
 
         <div className="mt-20 grid grid-cols-2 gap-8 rounded-3xl border border-border bg-card p-10 shadow-[var(--shadow-card)] sm:grid-cols-4">
