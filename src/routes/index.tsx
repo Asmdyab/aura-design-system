@@ -27,6 +27,7 @@ import {
   Facebook,
   Twitter,
 } from "lucide-react";
+import { UseCasesSection } from "@/components/sections/UseCasesSection";
 import logoSrc from "../assets/logo.png";
 
 export const Route = createFileRoute("/")({
@@ -1215,6 +1216,7 @@ function Index() {
       <Hero />
       <Logos />
       <Features />
+      <UseCasesSection />
       <ToolsShowcase />
       <HowItWorks />
       <Testimonials />
