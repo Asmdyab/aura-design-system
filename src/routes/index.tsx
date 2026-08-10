@@ -565,6 +565,84 @@ function Features() {
   );
 }
 
+/* ---------- Countries ---------- */
+
+const countries = [
+  { name: "مصر", flag: "🇪🇬" },
+  { name: "السعودية", flag: "🇸🇦" },
+  { name: "الإمارات", flag: "🇦🇪" },
+  { name: "الكويت", flag: "🇰🇼" },
+  { name: "قطر", flag: "🇶🇦" },
+  { name: "البحرين", flag: "🇧🇭" },
+  { name: "عمان", flag: "🇴🇲" },
+  { name: "اليمن", flag: "🇾🇪" },
+  { name: "الأردن", flag: "🇯🇴" },
+  { name: "لبنان", flag: "🇱🇧" },
+  { name: "سوريا", flag: "🇸🇾" },
+  { name: "العراق", flag: "🇮🇶" },
+  { name: "فلسطين", flag: "🇵🇸" },
+  { name: "تونس", flag: "🇹🇳" },
+  { name: "الجزائر", flag: "🇩🇿" },
+  { name: "المغرب", flag: "🇲🇦" },
+  { name: "ليبيا", flag: "🇱🇾" },
+  { name: "السودان", flag: "🇸🇩" },
+  { name: "موريتانيا", flag: "🇲🇷" },
+  { name: "الصومال", flag: "🇸🇴" },
+  { name: "جيبوتي", flag: "🇩🇯" },
+  { name: "جزر القمر", flag: "🇰🇲" },
+];
+
+function Countries() {
+  return (
+    <section id="دول-العمل" className="border-t border-border py-28 md:py-36">
+      <div className="container mx-auto max-w-6xl px-6">
+        <div className="mx-auto max-w-2xl text-center">
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: false }}
+            transition={{ duration: 0.6, ease }}
+            className="text-xl font-medium uppercase tracking-widest text-muted-foreground"
+          >
+            دول العمل
+          </motion.p>
+          <h2 className="mt-3 text-4xl font-semibold tracking-[-0.03em] sm:text-5xl">
+            <WordReveal text="نخدم طلابنا في جميع أنحاء الوطن العربي." />
+          </h2>
+          <motion.p
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: false }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="mt-4 text-lg text-muted-foreground"
+          >
+            أكاديميتنا متاحة للطلاب من كل الدول العربية، أينما كنت.
+          </motion.p>
+        </div>
+
+        <div className="mt-16 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+          {countries.map((c, i) => (
+            <motion.div
+              key={c.name}
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: false, margin: "-40px" }}
+              transition={{ duration: 0.7, ease, delay: i * 0.05 }}
+              whileHover={{ y: -6, scale: 1.04 }}
+              className="group flex flex-col items-center gap-3 rounded-2xl border border-border bg-card p-6 text-center shadow-[var(--shadow-card)] transition-colors duration-300 hover:border-[#0A5C70]/40 hover:shadow-[var(--shadow-elevated)]"
+            >
+              <span className="text-4xl transition-transform duration-300 group-hover:scale-110" aria-hidden>
+                {c.flag}
+              </span>
+              <span className="text-sm font-medium text-foreground">{c.name}</span>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 /* ---------- Pricing ---------- */
 
 type Plan = {
@@ -1306,6 +1384,7 @@ function Index() {
       <ToolsShowcase />
       <HowItWorks />
       <Testimonials />
+      <Countries />
       <Pricing />
       <CTA />
       <Footer />
