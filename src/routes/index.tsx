@@ -32,6 +32,7 @@ import {
   HelpCircle,
   Pen,
   Headphones,
+  ChevronDown,
 } from "lucide-react";
 import { UseCasesSection } from "@/components/sections/UseCasesSection";
 import logoSrc from "../assets/logo.png";
@@ -1176,6 +1177,54 @@ const morphMap = [
   { resourceIdx: 2, integrationIdx: 2 },
 ] as const;
 
+function ProgramMockup({ name }: { name: string }) {
+  return (
+    <div className="w-full overflow-hidden rounded-xl border border-white/10 bg-[#1E293B] shadow-2xl">
+      <div className="flex items-center gap-1.5 border-b border-white/10 px-4 py-2.5">
+        <span className="h-2.5 w-2.5 rounded-full bg-primary/60" />
+        <span className="h-2.5 w-2.5 rounded-full bg-secondary/60" />
+        <span className="h-2.5 w-2.5 rounded-full bg-accent-light/60" />
+        <span className="mr-3 text-xs text-white/40">{name}</span>
+      </div>
+      <div className="space-y-3 p-4">
+        {[0, 1, 2, 3].map((j) => (
+          <motion.div
+            key={j}
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ delay: 0.2 + j * 0.1, duration: 0.5, ease }}
+            style={{ originX: 0 }}
+            className="h-3 rounded-full bg-white/10"
+          >
+            <motion.div
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: [0.3, 0.5, 0.8, 0.6][j] }}
+              transition={{ delay: 0.4 + j * 0.1, duration: 0.6, ease }}
+              style={{ originX: 0 }}
+              className="h-full rounded-full bg-white/20"
+            />
+          </motion.div>
+        ))}
+        <div className="mt-4 flex items-start gap-3">
+          <div className="h-8 w-8 shrink-0 rounded-full bg-white/15" />
+          <div className="flex-1 space-y-2">
+            <div className="h-2.5 w-24 rounded bg-white/15" />
+            <div className="h-2 w-full rounded bg-white/8" />
+            <div className="h-2 w-3/4 rounded bg-white/8" />
+          </div>
+        </div>
+        <div className="flex items-start gap-3">
+          <div className="h-8 w-8 shrink-0 rounded-full bg-blue-400/20" />
+          <div className="flex-1 space-y-2">
+            <div className="h-2.5 w-20 rounded bg-white/15" />
+            <div className="h-2 w-full rounded bg-white/8" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ToolsShowcase() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
@@ -1231,12 +1280,12 @@ function ToolsShowcase() {
             {phase === "grid" ? (
               <motion.div
                 key="grid"
-                className="absolute inset-0 flex items-end justify-center gap-3 px-4 pb-20 md:gap-4 md:px-8"
+                className="absolute inset-0 flex items-end justify-center gap-1.5 px-2 pb-20 sm:gap-3 sm:px-4 md:gap-4 md:px-8"
               >
                 {columnConfig.map((col, ci) => (
                   <motion.div
                     key={ci}
-                    className="flex flex-col gap-3 md:gap-4"
+                    className="flex flex-col gap-1.5 sm:gap-3 md:gap-4"
                     style={{ y: colYs[ci] }}
                   >
                     {col.cards.map((cardIdx) => {
@@ -1247,11 +1296,11 @@ function ToolsShowcase() {
                           key={cardIdx}
                           layoutId={morphEntry ? `morph-${morphEntry.integrationIdx}` : undefined}
                           exit={{ opacity: 0, transition: { duration: 0.12 } }}
-                          className="flex w-24 flex-col items-center justify-center gap-2 rounded-2xl border-2 border-border/70 shadow-md sm:w-32 md:w-40 lg:w-44"
+                          className="flex w-[clamp(38px,11vw,150px)] flex-col items-center justify-center gap-1.5 rounded-2xl border-2 border-border/70 shadow-md sm:gap-2"
                           style={{ background: "oklch(0.975 0 0)", height: `${cardHeights[cardIdx]}px` }}
                         >
-                          <resource.icon className="w-5 h-5 text-muted-foreground/80" />
-                          <span className="text-xs md:text-sm font-semibold text-muted-foreground text-center leading-relaxed px-2">
+                          <resource.icon className="h-4 w-4 text-muted-foreground/80 sm:h-5 sm:w-5" />
+                          <span className="px-1 text-center text-[9px] font-semibold leading-relaxed text-muted-foreground sm:px-2 sm:text-xs md:text-sm">
                             {resource.name}
                           </span>
                         </motion.div>
@@ -1266,100 +1315,111 @@ function ToolsShowcase() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.35 }}
-                className="absolute inset-0 flex items-center justify-center gap-4 px-4 md:gap-6 md:px-8"
+                className="absolute inset-0 flex items-start justify-center overflow-y-auto"
               >
-                {programIntegrations.map((int, i) => {
-                  const isActive = i === activeInt;
-                  return (
-                    <motion.div
-                      key={int.name}
-                      layoutId={`morph-${i}`}
-                      onMouseEnter={() => setActiveInt(i)}
-                      onMouseLeave={() => setActiveInt(1)}
-                      animate={{
-                        flex: isActive ? 3 : 1,
-                      }}
-                      transition={{ type: "spring", stiffness: 200, damping: 28 }}
-                      className="relative cursor-pointer overflow-hidden rounded-3xl"
-                      style={{
-                        height: "min(70vh, 520px)",
-                        minWidth: 100,
-                      }}
-                    >
-          <AnimatePresence mode="popLayout">
-                        {isActive && (
-                          <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.4 }}
-                            className="absolute inset-0 flex flex-col items-center rounded-3xl bg-foreground text-background p-8 md:p-12"
-                          >
-                            <div className="flex items-center gap-3 mt-4">
-                              <BookOpen className="h-8 w-8 text-background" />
-                              <span className="text-3xl font-semibold tracking-tight md:text-4xl">{int.name}</span>
-                            </div>
-                            <p className="mt-4 max-w-md text-center text-sm leading-relaxed text-background/70 md:text-base">
-                              {int.desc}
-                            </p>
-                            <div className="mt-6 w-full max-w-lg flex-1 overflow-hidden rounded-xl border border-white/10 bg-white/5 shadow-2xl">
-                              <div className="flex items-center gap-1.5 border-b border-white/10 px-4 py-2.5">
-                                <span className="h-2.5 w-2.5 rounded-full bg-primary/60" />
-                                <span className="h-2.5 w-2.5 rounded-full bg-secondary/60" />
-                                <span className="h-2.5 w-2.5 rounded-full bg-accent-light/60" />
-                                <span className="mr-3 text-xs text-white/40">{int.name}</span>
+                {/* desktop panels */}
+                <div
+                  className="my-auto hidden w-full max-w-6xl items-center justify-center gap-6 px-8 md:flex"
+                  style={{ height: "min(70vh, 520px)" }}
+                >
+                  {programIntegrations.map((int, i) => {
+                    const isActive = i === activeInt;
+                    return (
+                      <motion.div
+                        key={int.name}
+                        layoutId={`morph-${i}`}
+                        onMouseEnter={() => setActiveInt(i)}
+                        onMouseLeave={() => setActiveInt(1)}
+                        animate={{
+                          flex: isActive ? 3 : 1,
+                        }}
+                        transition={{ type: "spring", stiffness: 200, damping: 28 }}
+                        className="relative cursor-pointer overflow-hidden rounded-3xl"
+                        style={{
+                          height: "100%",
+                          minWidth: 100,
+                        }}
+                      >
+                        <AnimatePresence mode="popLayout">
+                          {isActive && (
+                            <motion.div
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              exit={{ opacity: 0 }}
+                              transition={{ duration: 0.4 }}
+                              className="absolute inset-0 flex flex-col items-center rounded-3xl bg-foreground p-8 text-background md:p-12"
+                            >
+                              <div className="mt-4 flex items-center gap-3">
+                                <BookOpen className="h-8 w-8 text-background" />
+                                <span className="text-3xl font-semibold tracking-tight md:text-4xl">{int.name}</span>
                               </div>
-                              <div className="p-4 space-y-3">
-                                {[0, 1, 2, 3].map((j) => (
-                                  <motion.div
-                                    key={j}
-                                    initial={{ scaleX: 0 }}
-                                    animate={{ scaleX: 1 }}
-                                    transition={{ delay: 0.2 + j * 0.1, duration: 0.5, ease }}
-                                    style={{ originX: 0 }}
-                                    className="h-3 rounded-full bg-white/10"
-                                  >
-                                    <motion.div
-                                      initial={{ scaleX: 0 }}
-                                      animate={{ scaleX: [0.3, 0.5, 0.8, 0.6][j] }}
-                                      transition={{ delay: 0.4 + j * 0.1, duration: 0.6, ease }}
-                                      style={{ originX: 0 }}
-                                      className="h-full rounded-full bg-white/20"
-                                    />
-                                  </motion.div>
-                                ))}
-                                <div className="mt-4 flex items-start gap-3">
-                                  <div className="h-8 w-8 shrink-0 rounded-full bg-white/15" />
-                                  <div className="flex-1 space-y-2">
-                                    <div className="h-2.5 w-24 rounded bg-white/15" />
-                                    <div className="h-2 w-full rounded bg-white/8" />
-                                    <div className="h-2 w-3/4 rounded bg-white/8" />
-                                  </div>
-                                </div>
-                                <div className="flex items-start gap-3">
-                                  <div className="h-8 w-8 shrink-0 rounded-full bg-blue-400/20" />
-                                  <div className="flex-1 space-y-2">
-                                    <div className="h-2.5 w-20 rounded bg-white/15" />
-                                    <div className="h-2 w-full rounded bg-white/8" />
-                                  </div>
-                                </div>
+                              <p className="mt-4 max-w-md text-center text-sm leading-relaxed text-background/70 md:text-base">
+                                {int.desc}
+                              </p>
+                              <div className="mt-6 w-full max-w-lg flex-1">
+                                <ProgramMockup name={int.name} />
                               </div>
-                            </div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
 
-                      {!isActive && (
-                        <div
-                          className="flex h-full items-center justify-center rounded-3xl border border-border/50"
-                          style={{ background: "oklch(0.955 0 0)" }}
+                        {!isActive && (
+                          <div
+                            className="flex h-full items-center justify-center rounded-3xl border border-border/50"
+                            style={{ background: "oklch(0.955 0 0)" }}
+                          >
+                            <span className="text-sm font-semibold text-muted-foreground/50">{int.name}</span>
+                          </div>
+                        )}
+                      </motion.div>
+                    );
+                  })}
+                </div>
+
+                {/* mobile accordion */}
+                <div className="my-auto flex w-full max-w-md flex-col gap-3 px-4 pb-6 pt-24 md:hidden">
+                  {programIntegrations.map((int, i) => {
+                    const isActive = i === activeInt;
+                    return (
+                      <div
+                        key={int.name}
+                        className="overflow-hidden rounded-3xl border border-border bg-card shadow-[var(--shadow-card)]"
+                      >
+                        <button
+                          onClick={() => setActiveInt(isActive ? -1 : i)}
+                          className="flex w-full items-center justify-between gap-3 p-4 text-right"
+                          aria-expanded={isActive}
                         >
-                          <span className="text-muted-foreground/50 text-sm font-semibold">{int.name}</span>
-                        </div>
-                      )}
-                    </motion.div>
-                  );
-                })}
+                          <span className="text-lg font-semibold tracking-tight">{int.name}</span>
+                          <motion.span
+                            animate={{ rotate: isActive ? 180 : 0 }}
+                            transition={{ duration: 0.3, ease }}
+                          >
+                            <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                          </motion.span>
+                        </button>
+                        <AnimatePresence initial={false}>
+                          {isActive && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: "auto", opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              transition={{ duration: 0.3, ease }}
+                              className="overflow-hidden"
+                            >
+                              <div className="px-4 pb-4">
+                                <p className="text-sm leading-relaxed text-muted-foreground">{int.desc}</p>
+                                <div className="mt-4">
+                                  <ProgramMockup name={int.name} />
+                                </div>
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    );
+                  })}
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
