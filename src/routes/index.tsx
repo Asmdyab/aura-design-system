@@ -567,14 +567,77 @@ function Features() {
 
 /* ---------- Pricing ---------- */
 
-const tiers = [
-  { name: "الأساسي", price: 0, desc: "للمبتدئين في رحلة تعلم القرآن.", features: ["درس واحد أسبوعياً", "متابعة عبر المجموعات", "محتوى تعليمي أساسي"], cta: "ابدأ مجاناً" },
-  { name: "المتقدم", price: 99, desc: "للمنتظمين في طلب العلم والإتقان.", features: ["دروس مكثفة أسبوعياً", "متابعة فردية مع معلم", "تصحيح تلاوة مستمر", "جلسات تدبر أسبوعية"], cta: "ابدأ تجربتك" },
-  { name: "المتميز", price: 199, desc: "لطالب الإجازة والتميز في القرآن.", features: ["جميع مزايا المتقدم", "طريق إجازة بالسند", "جلسات خاصة أسبوعية", "تقييم دوري شامل", "شهادة معتمدة"], cta: "تواصل معنا" },
+type Plan = {
+  name: string;
+  price: number;
+  period: string;
+  features: string[];
+};
+
+type PricingCategory = {
+  title: string;
+  note?: string;
+  plans: Plan[];
+};
+
+const pricingCategories: PricingCategory[] = [
+  {
+    title: "باقات الحصص",
+    note: "مصر",
+    plans: [
+      { name: "باقة حصتين", price: 350, period: "شهرياً", features: ["حصتان أسبوعياً", "متابعة وتقييم مستمر"] },
+      { name: "باقة 3 حصص", price: 600, period: "شهرياً", features: ["3 حصص أسبوعياً", "متابعة وتقييم مستمر"] },
+      { name: "باقة 4 حصص", price: 800, period: "شهرياً", features: ["4 حصص أسبوعياً", "متابعة وتقييم مستمر"] },
+    ],
+  },
+  {
+    title: "باقة العائلة",
+    note: "بلانر العائلة",
+    plans: [
+      { name: "3 أفراد", price: 1100, period: "شهرياً", features: ["3 أفراد في الباقة"] },
+      { name: "4 أفراد", price: 1350, period: "شهرياً", features: ["4 أفراد في الباقة"] },
+      { name: "5 أفراد", price: 1700, period: "شهرياً", features: ["5 أفراد في الباقة"] },
+    ],
+  },
+  {
+    title: "مرحلة التصحيح",
+    plans: [
+      { name: "تصحيح حصتين أسبوعياً", price: 500, period: "شهرياً", features: ["حصتان في الأسبوع"] },
+      { name: "تصحيح 3 حصص أسبوعياً", price: 1000, period: "شهرياً", features: ["3 حصص في الأسبوع"] },
+    ],
+  },
+  {
+    title: "مرحلة ما قبل الإجازة",
+    plans: [
+      { name: "ما قبل الإجازة", price: 800, period: "شهرياً", features: ["حصتان في الأسبوع", "مدة الحصة ساعة"] },
+    ],
+  },
+  {
+    title: "مرحلة الإجازة",
+    plans: [
+      { name: "الإجازة", price: 700, period: "شهرياً", features: ["حفظ وإجازة القرآن"] },
+      { name: "طباعة الإجازة", price: 3000, period: "مرة واحدة", features: ["طباعة الإجازة", "الشحن شامل"] },
+    ],
+  },
+  {
+    title: "تعليم القراءة للصغار",
+    plans: [
+      { name: "حصتان", price: 350, period: "شهرياً", features: ["مدة الحصة 40 دقيقة"] },
+      { name: "3 حصص", price: 470, period: "شهرياً", features: ["مدة الحصة 40 دقيقة"] },
+    ],
+  },
+  {
+    title: "شرح أحاديث وتربية وتقوية التخاطب وتعديل اللثغة",
+    plans: [
+      { name: "برنامج متكامل", price: 880, period: "شهرياً", features: ["يومان أسبوعياً", "مدة الحصة 45 دقيقة"] },
+    ],
+  },
 ];
 
 function Pricing() {
-  const [active, setActive] = useState(1);
+  const [active, setActive] = useState<Record<number, number>>(
+    Object.fromEntries(pricingCategories.map((_, i) => [i, 0]))
+  );
 
   return (
     <section id="الأسعار" className="dark-section border-t border-border bg-[#0A5C70] py-28 md:py-36">
@@ -587,67 +650,75 @@ function Pricing() {
           <p className="mt-4 text-lg text-background/70">مرر فوق الباقة لتحديدها.</p>
         </div>
 
-        <div className="mt-16 grid gap-6 md:grid-cols-3">
-          {tiers.map((t, i) => {
-            const isActive = active === i;
+        <div className="mt-16 space-y-16">
+          {pricingCategories.map((cat, ci) => {
+            const activePlan = active[ci];
             return (
-              <motion.div
-                key={t.name}
-                onMouseEnter={() => setActive(i)}
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: false, margin: "-60px" }}
-                transition={{ duration: 0.8, ease, delay: i * 0.08 }}
-                className="relative"
-              >
-          <AnimatePresence mode="wait">
-                  {isActive && (
-                    <motion.div
-                      layoutId="price-highlight"
-                      className="absolute inset-0 rounded-2xl bg-foreground shadow-[var(--shadow-elevated)]"
-                      transition={{ type: "spring", stiffness: 200, damping: 28 }}
-                    />
-                  )}
-                </AnimatePresence>
-                <div
-                  className={`relative flex flex-col rounded-2xl border p-8 transition-colors duration-500 ${
-                    isActive
-                      ? "border-foreground text-background"
-                      : "border-border bg-card text-foreground"
-                  }`}
-                >
-                  <h3 className="text-lg font-semibold tracking-tight">{t.name}</h3>
-                  <p className={`mt-1 text-sm ${isActive ? "text-background/70" : "text-muted-foreground"}`}>
-                    {t.desc}
-                  </p>
-                  <div className="mt-6 flex items-baseline gap-1">
-                    <span className="text-5xl font-semibold tracking-tight">
-                      {t.price === 0 ? "مجاناً" : `${t.price} ر.س`}
-                    </span>
-                    {t.price > 0 && (
-                      <span className={`text-sm ${isActive ? "text-background/70" : "text-muted-foreground"}`}>
-                        /شهرياً
-                      </span>
-                    )}
-                  </div>
-                  <ul className="mt-7 space-y-3 text-sm">
-                    {t.features.map((f) => (
-                      <li key={f} className="flex items-start gap-2">
-                        <Check className={`mt-0.5 h-4 w-4 shrink-0 ${isActive ? "text-background" : "text-foreground"}`} />
-                        <span className={isActive ? "text-background/90" : "text-foreground"}>{f}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <a
-                    href="#"
-                    className={`mt-8 inline-flex items-center justify-center rounded-full px-4 py-2.5 text-sm font-medium transition-transform hover:scale-[1.03] ${
-                      isActive ? "bg-background text-foreground" : "border border-border bg-background text-foreground"
-                    }`}
-                  >
-                    {t.cta}
-                  </a>
+              <div key={cat.title}>
+                <div className="mb-6 flex items-center justify-between gap-4 border-b border-background/10 pb-3">
+                  <h3 className="text-2xl font-semibold tracking-tight text-background">{cat.title}</h3>
+                  {cat.note && <span className="text-sm text-background/60">{cat.note}</span>}
                 </div>
-              </motion.div>
+                <div className="grid gap-6 md:grid-cols-3">
+                  {cat.plans.map((t, i) => {
+                    const isActive = activePlan === i;
+                    return (
+                      <motion.div
+                        key={t.name}
+                        onMouseEnter={() => setActive((prev) => ({ ...prev, [ci]: i }))}
+                        initial={{ opacity: 0, y: 40 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: false, margin: "-60px" }}
+                        transition={{ duration: 0.8, ease, delay: i * 0.08 }}
+                        className="relative"
+                      >
+                        <AnimatePresence mode="wait">
+                          {isActive && (
+                            <motion.div
+                              layoutId={`price-highlight-${ci}`}
+                              className="absolute inset-0 rounded-2xl bg-foreground shadow-[var(--shadow-elevated)]"
+                              transition={{ type: "spring", stiffness: 200, damping: 28 }}
+                            />
+                          )}
+                        </AnimatePresence>
+                        <div
+                          className={`relative flex h-full flex-col rounded-2xl border p-8 transition-colors duration-500 ${
+                            isActive
+                              ? "border-foreground text-background"
+                              : "border-border bg-card text-foreground"
+                          }`}
+                        >
+                          <h4 className="text-lg font-semibold tracking-tight">{t.name}</h4>
+                          <div className="mt-6 flex items-baseline gap-1">
+                            <span className="text-5xl font-semibold tracking-tight">{t.price} ج.م</span>
+                            {t.period && (
+                              <span className={`text-sm ${isActive ? "text-background/70" : "text-muted-foreground"}`}>
+                                /{t.period}
+                              </span>
+                            )}
+                          </div>
+                          <ul className="mt-7 space-y-3 text-sm">
+                            {t.features.map((f) => (
+                              <li key={f} className="flex items-start gap-2">
+                                <Check className={`mt-0.5 h-4 w-4 shrink-0 ${isActive ? "text-background" : "text-foreground"}`} />
+                                <span className={isActive ? "text-background/90" : "text-foreground"}>{f}</span>
+                              </li>
+                            ))}
+                          </ul>
+                          <a
+                            href="#"
+                            className={`mt-8 inline-flex items-center justify-center rounded-full px-4 py-2.5 text-sm font-medium transition-transform hover:scale-[1.03] ${
+                              isActive ? "bg-background text-foreground" : "border border-border bg-background text-foreground"
+                            }`}
+                          >
+                            تواصل معنا
+                          </a>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              </div>
             );
           })}
         </div>
