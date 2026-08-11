@@ -8,3 +8,6 @@ obj/
 # App runtime output
 apiresult.txt
 uploads/
+
+# Local secrets / dev configuration
+appsettings.Development.json
