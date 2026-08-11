@@ -13,12 +13,14 @@ using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Agents;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.Google;
+using Microsoft.SemanticKernel.Connectors.OpenAI;
 
 namespace Academy.Agent.Application;
 
 public sealed class AgentEngine
 {
     private readonly SemanticKernelOptions _skOptions;
+    private readonly LlmOptions _llmOptions;
     private readonly ChatOptions _chatOptions;
     private readonly AgentContext _context;
     private readonly IConversationRepository _conversations;
@@ -31,6 +33,7 @@ public sealed class AgentEngine
 
     public AgentEngine(
         IOptions<SemanticKernelOptions> skOptions,
+        IOptions<LlmOptions> llmOptions,
         IOptions<ChatOptions> chatOptions,
         AgentContext context,
         IConversationRepository conversations,
@@ -42,6 +45,7 @@ public sealed class AgentEngine
         ILogger<AgentEngine> logger)
     {
         _skOptions = skOptions.Value;
+        _llmOptions = llmOptions.Value;
         _chatOptions = chatOptions.Value;
         _context = context;
         _conversations = conversations;
@@ -158,8 +162,33 @@ public sealed class AgentEngine
 
     private ChatCompletionAgent CreateAgent()
     {
+        var settings = LlmOptionsResolver.Resolve(_llmOptions, _skOptions);
+
         var builder = Kernel.CreateBuilder();
-        builder.AddGoogleAIGeminiChatCompletion(_skOptions.ModelId, _skOptions.ApiKey, httpClient: _httpClient);
+
+        PromptExecutionSettings executionSettings;
+        if (settings.Provider == LlmProvider.OpenAI || settings.Provider == LlmProvider.OpenRouter)
+        {
+            if (string.IsNullOrWhiteSpace(settings.BaseUrl))
+                builder.AddOpenAIChatCompletion(settings.ModelId, settings.ApiKey, httpClient: _httpClient);
+            else
+                builder.AddOpenAIChatCompletion(settings.ModelId, new Uri(settings.BaseUrl), settings.ApiKey, httpClient: _httpClient);
+            executionSettings = new OpenAIPromptExecutionSettings
+            {
+                Temperature = settings.Temperature,
+                FunctionChoiceBehavior = FunctionChoiceBehavior.Auto(),
+            };
+        }
+        else
+        {
+            builder.AddGoogleAIGeminiChatCompletion(settings.ModelId, settings.ApiKey, httpClient: _httpClient);
+            executionSettings = new GeminiPromptExecutionSettings
+            {
+                Temperature = settings.Temperature,
+                FunctionChoiceBehavior = FunctionChoiceBehavior.Auto(),
+            };
+        }
+
         var kernel = builder.Build();
 
         kernel.Plugins.AddFromObject(_academyPlugin, "Academy");
@@ -172,11 +201,7 @@ public sealed class AgentEngine
             Kernel = kernel,
             Name = "AcademyAssistant",
             Instructions = SystemPrompt.Value,
-            Arguments = new KernelArguments(new GeminiPromptExecutionSettings
-            {
-                Temperature = _skOptions.Temperature,
-                FunctionChoiceBehavior = FunctionChoiceBehavior.Auto(),
-            }),
+            Arguments = new KernelArguments(executionSettings),
         };
     }
 
