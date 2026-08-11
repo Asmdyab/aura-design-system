@@ -35,6 +35,8 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { UseCasesSection } from "@/components/sections/UseCasesSection";
+import { ChatWidget } from "@/components/chat/ChatWidget";
+import { openChat } from "@/lib/chat-open";
 import logoSrc from "../assets/logo.png";
 
 export const Route = createFileRoute("/")({
@@ -209,6 +211,10 @@ function Nav() {
         <Magnetic>
           <a
             href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              openChat();
+            }}
             className="inline-flex items-center gap-1.5 rounded-full bg-foreground px-3.5 py-1.5 text-sm font-medium text-background"
           >
             ابدأ الآن <ArrowLeft className="h-3.5 w-3.5" />
@@ -309,6 +315,10 @@ function Hero() {
           <Magnetic>
             <a
               href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                openChat();
+              }}
               className="group inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background"
             >
               ابدأ رحلتك المجانية
@@ -323,7 +333,7 @@ function Hero() {
           </Magnetic>
           <Magnetic>
             <a
-              href="#"
+              href="#البرامج"
               className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-5 py-2.5 text-sm font-medium text-foreground shadow-[var(--shadow-pill)]"
             >
               <BookOpen className="h-4 w-4" /> تعرف على برامجنا
@@ -786,6 +796,10 @@ function Pricing() {
                           </ul>
                           <a
                             href="#"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              openChat();
+                            }}
                             className={`mt-8 inline-flex items-center justify-center rounded-full px-4 py-2.5 text-sm font-medium transition-transform hover:scale-[1.03] ${
                               isActive ? "bg-background text-foreground" : "border border-border bg-background text-foreground"
                             }`}
@@ -836,6 +850,10 @@ function CTA() {
               <Magnetic>
                 <a
                   href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    openChat();
+                  }}
                   className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background"
                 >
                   سجل الآن <ArrowLeft className="h-4 w-4" />
@@ -843,7 +861,7 @@ function CTA() {
               </Magnetic>
               <Magnetic>
                 <a
-                  href="#"
+                  href="#البرامج"
                   className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-5 py-2.5 text-sm font-medium text-foreground"
                 >
                   تعرف على المزيد
@@ -1448,6 +1466,7 @@ function Index() {
       <Pricing />
       <CTA />
       <Footer />
+      <ChatWidget />
     </main>
   );
 }

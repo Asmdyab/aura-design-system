@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Academy.Agent.Api/Academy.Agent.Api.csproj" />
+    <Project Path="src/Academy.Agent.Application/Academy.Agent.Application.csproj" />
+    <Project Path="src/Academy.Agent.Domain/Academy.Agent.Domain.csproj" />
+    <Project Path="src/Academy.Agent.Infrastructure/Academy.Agent.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Academy.Agent.Tests/Academy.Agent.Tests.csproj" />
+  </Folder>
+</Solution>
