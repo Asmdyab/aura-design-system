@@ -13,6 +13,7 @@ public sealed class AcademyDbContext : DbContext
     public DbSet<Conversation> Conversations => Set<Conversation>();
     public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();
     public DbSet<AdminNotification> AdminNotifications => Set<AdminNotification>();
+    public DbSet<AdminUser> AdminUsers => Set<AdminUser>();
 
     public AcademyDbContext(DbContextOptions<AcademyDbContext> options) : base(options) { }
 
@@ -87,6 +88,17 @@ public sealed class AcademyDbContext : DbContext
             e.HasKey(n => n.Id);
             e.Property(n => n.Type).HasMaxLength(50).IsRequired();
             e.Property(n => n.Message).HasColumnType("nvarchar(max)");
+            e.HasIndex(n => n.IsRead);
+        });
+
+        modelBuilder.Entity<AdminUser>(e =>
+        {
+            e.HasKey(u => u.Id);
+            e.Property(u => u.UserName).HasMaxLength(50).IsRequired();
+            e.HasIndex(u => u.UserName).IsUnique();
+            e.Property(u => u.PasswordHash).HasMaxLength(500).IsRequired();
+            e.Property(u => u.PasswordSalt).HasMaxLength(200).IsRequired();
+            e.Property(u => u.FullName).HasMaxLength(200).IsRequired();
         });
     }
 

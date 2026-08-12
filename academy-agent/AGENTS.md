@@ -42,6 +42,22 @@ The active LLM provider is selected via the **`LLM`** configuration section. Eac
 
 If **no** provider has `UseThisProvider = true`, the engine falls back to the legacy **`Gemini`** configuration section (top-level, bound to `SemanticKernelOptions`). Keep that section for backward compatibility.
 
+## Admin dashboard, JWT auth & real-time notifications
+
+The API also serves the admin dashboard (frontend at `/dashboard`):
+
+- **Auth** — `POST /api/auth/login` validates against the `AdminUsers` table (PBKDF2-hashed passwords) and returns a JWT (role `Admin`, 12h expiry). Every `/api/admin/*` endpoint requires it. Admin accounts are managed directly in the DB.
+- **Config** (`appsettings*.json` / env vars):
+  - `Jwt:Issuer`, `Jwt:Audience`, `Jwt:SigningKey` (required — never commit a real secret; use `Jwt__SigningKey` env var).
+  - `AdminSeed` — first-run seed: if no `AdminUser` exists when the app starts it creates `AdminSeed:UserName` (`admin`) with `AdminSeed:Password` (env `AdminSeed__Password`). If no password is set it falls back to `Admin@123` and logs a warning. **Change it immediately.**
+- **SignalR** — `AdminNotificationsHub` at `/hubs/admin-notifications`, JWT passed in the `?access_token=` query string. `IAdminNotifier` persists notifications and broadcasts them to all connected admins (covers agent-driven new registrations and payment-proof uploads with no plugin changes).
+- **Admin endpoints** (`AdminController`, all `[Authorize(Roles="Admin")]`):
+  - `GET /api/admin/stats`
+  - `GET|POST /api/admin/reservations`, `PATCH /api/admin/reservations/{id}/status`
+  - `GET /api/admin/payment-proofs`, `POST /api/admin/payment-proofs/{id}/approve|reject`
+  - `GET|POST|PUT|DELETE /api/admin/programs`, `PATCH /api/admin/programs/{id}/toggle`
+  - `GET /api/admin/notifications`, `POST /api/admin/notifications/mark-read`, `POST .../mark-all-read`
+
 ## Key files
 
 | Concern | File |
@@ -51,6 +67,16 @@ If **no** provider has `UseThisProvider = true`, the engine falls back to the le
 | DI wiring + conditional HTTP handler/headers | `src/Academy.Agent.Application/DependencyInjection.cs` (Gemini handler only when Gemini active; OpenRouter `HTTP-Referer`/`X-OpenRouter-Title` headers when OpenRouter active) |
 | Gemini-only role rewrite handler | `src/Academy.Agent.Application/Http/GeminiFunctionRoleCompatibilityHandler.cs` (applied only when Gemini is active) |
 | REST/SSE endpoints | `src/Academy.Agent.Api/Controllers/ChatController.cs` |
+| Admin dashboard API | `src/Academy.Agent.Api/Controllers/Admin/AdminController.cs` |
+| Auth | `src/Academy.Agent.Api/Controllers/AuthController.cs`, `src/Academy.Agent.Infrastructure/Auth/` (`PasswordHasher`, `JwtTokenService`, `AuthService`) |
+| Admin SignalR hub | `src/Academy.Agent.Api/Hubs/` (`AdminNotificationsHub`, `AdminNotificationBroadcaster`) |
+| First-run admin seed | `src/Academy.Agent.Api/Services/AdminSeedService.cs` |
+
+## Frontend / dashboard
+
+- API client + token storage: `src/lib/admin-api.ts` (JWT in `localStorage`, 401 → `/dashboard/login`).
+- Routes: `/dashboard/login`, `/dashboard` (layout + sidebar + notification bell), `/dashboard` stats, `/dashboard/users`, `/dashboard/payments`, `/dashboard/programs`.
+- Real-time hook: `src/hooks/use-admin-notifications.ts` (SignalR `@microsoft/signalr`). The hub URL is `${VITE_AGENT_API_URL}/hubs/admin-notifications`.
 
 ## Notes
 

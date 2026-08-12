@@ -20,6 +20,27 @@ export default defineConfig({
           changeOrigin: true,
           secure: false,
         },
+        "/api/auth": {
+          target: "https://localhost:7068",
+          changeOrigin: true,
+          secure: false,
+        },
+        "/api/admin": {
+          target: "https://localhost:7068",
+          changeOrigin: true,
+          secure: false,
+        },
+        "/uploads": {
+          target: "https://localhost:7068",
+          changeOrigin: true,
+          secure: false,
+        },
+        "/hubs": {
+          target: "https://localhost:7068",
+          changeOrigin: true,
+          secure: false,
+          ws: true,
+        },
       },
     },
   },

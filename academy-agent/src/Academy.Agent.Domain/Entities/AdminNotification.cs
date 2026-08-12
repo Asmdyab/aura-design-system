@@ -7,5 +7,6 @@ public class AdminNotification
     public string Type { get; set; } = string.Empty;
     public string Message { get; set; } = string.Empty;
     public bool Delivered { get; set; }
+    public bool IsRead { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

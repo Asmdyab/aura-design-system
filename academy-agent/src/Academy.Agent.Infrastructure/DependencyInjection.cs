@@ -1,4 +1,6 @@
+using Academy.Agent.Application.Options;
 using Academy.Agent.Application.Ports;
+using Academy.Agent.Infrastructure.Auth;
 using Academy.Agent.Infrastructure.Integrations;
 using Academy.Agent.Infrastructure.Persistence;
 using Academy.Agent.Infrastructure.Repositories;
@@ -24,10 +26,17 @@ public static class DependencyInjection
 
         services.AddDbContext<AcademyDbContext>(options => options.UseSqlServer(connectionString));
 
+        services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
+        services.Configure<AdminSeedOptions>(configuration.GetSection(AdminSeedOptions.SectionName));
+
         services.AddScoped<IAcademyRepository, AcademyRepository>();
         services.AddScoped<IReservationRepository, ReservationRepository>();
         services.AddScoped<IConversationRepository, ConversationRepository>();
         services.AddScoped<IAdminNotifier, AdminNotifier>();
+
+        services.AddSingleton<IPasswordHasher, PasswordHasher>();
+        services.AddSingleton<ITokenService, JwtTokenService>();
+        services.AddScoped<IAuthService, AuthService>();
 
         services.AddHttpClient<IWhatsAppMessenger, WhatsAppMessenger>(client => client.Timeout = TimeSpan.FromSeconds(60));
         services.AddHttpClient<IWebSearchService, GoogleWebSearchService>(client => client.Timeout = TimeSpan.FromSeconds(25));
