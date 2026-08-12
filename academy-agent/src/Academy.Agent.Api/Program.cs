@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json.Serialization;
 using Academy.Agent.Api.Hubs;
 using Academy.Agent.Api.Services;
 using Academy.Agent.Api.Webhooks;
@@ -13,7 +14,9 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(o =>
+        o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddOpenApi();
 builder.Services.AddSignalR();
 
