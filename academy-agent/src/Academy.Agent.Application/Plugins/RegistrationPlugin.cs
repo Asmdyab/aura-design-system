@@ -98,7 +98,12 @@ public sealed class RegistrationPlugin
             ct);
 
         _context.CurrentReservationId = reservation.Id;
-        await _conversations.SetStateAsync(_context.CurrentConversation!.Id, ConversationState.InRegistration, ct: ct);
+
+        var draft = RegistrationDraft.FromJson(_context.CurrentConversation!.RegistrationDraftJson);
+        draft.ReservationId = reservation.Id;
+        draft.PayNow = payNow;
+        _context.CurrentConversation.RegistrationDraftJson = draft.ToJson();
+        await _conversations.SetStateAsync(_context.CurrentConversation.Id, ConversationState.InRegistration, draft.ToJson(), ct);
 
         var status = payNow ? "قيد المراجعة (بانتظار إثبات الدفع)" : "محجوز";
         var payNote = payNow
@@ -143,6 +148,14 @@ public sealed class RegistrationPlugin
         await _conversations.SetStateAsync(_context.CurrentConversation!.Id, ConversationState.Idle, ct: ct);
 
         return $"تم استلام إثبات الدفع بنجاح وسيقوم المسؤول بمراجعته وتفعيل الاشتراك يدويًا.\nرقم المرجع: {reservation.ReferenceNumber}";
+    }
+
+    [KernelFunction("RequestPaymentProofUpload")]
+    [Description("يعرض للمستخدم بطاقة تفاعلية لرفع لقطة شاشة إثبات الدفع على واجهة الدردشة. استدعِها في واجهة الويب فور عرض إرشادات الدفع (فودافون كاش / انستاباي) وطلب وسيلة الدفع قبل إرفاق الإثبات.")]
+    public async Task<string> RequestPaymentProofUploadAsync(CancellationToken ct)
+    {
+        _context.RequestPaymentUpload = true;
+        return "سيتم عرض بطاقة رفع لقطة شاشة إثبات الدفع الآن. يرجى توجيه المستخدم لرفع لقطة الشاشة وسيقوم النظام بحفظها وإشعار المسؤول.";
     }
 
     public static string NormalizePhone(string value)

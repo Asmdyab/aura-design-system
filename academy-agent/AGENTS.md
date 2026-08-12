@@ -78,6 +78,12 @@ The API also serves the admin dashboard (frontend at `/dashboard`):
 - Routes: `/dashboard/login`, `/dashboard` (layout + sidebar + notification bell), `/dashboard` stats, `/dashboard/users`, `/dashboard/payments`, `/dashboard/programs`.
 - Real-time hook: `src/hooks/use-admin-notifications.ts` (SignalR `@microsoft/signalr`). The hub URL is `${VITE_AGENT_API_URL}/hubs/admin-notifications`.
 
+### Payment screenshot upload card (web chat)
+
+- The agent tool `RequestPaymentProofUpload` (RegistrationPlugin) makes the web chat SSE stream emit `event: payment-upload` (payload: `reservationId`, `reservationRef`) after the reply, mirroring the `plans` card mechanism in `ChatController`.
+- The widget renders an upload card and POSTs the screenshot to `POST /api/chat/payment-proof` (multipart: `file`, `conversationId`, `reservationId`, optional `method`/`amount`/`txnRef`). That endpoint saves the file via `IFileStorage`, creates a `PaymentProof` (pending review) via `IReservationRepository.AddPaymentProofAsync`, and notifies admins — without depending on the LLM.
+- On WhatsApp, no card is sent; the user just sends the screenshot in chat (existing inbound-media flow).
+
 ## Notes
 
 - The `GeminiFunctionRoleCompatibilityHandler` rewrites `"role":"function"` → `"user"` (a Gemini-only requirement). It is registered **only** when Gemini is the active provider — it would corrupt OpenAI-format tool messages.

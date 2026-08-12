@@ -14,6 +14,7 @@ public class ChatController : ControllerBase
 {
     private readonly ILogger<ChatController> _logger;
     private readonly IConversationRepository _conversations;
+    private readonly IReservationRepository _reservations;
     private readonly AgentEngine _agent;
     private readonly IFileStorage _fileStorage;
     private readonly AgentContext _context;
@@ -25,6 +26,7 @@ public class ChatController : ControllerBase
     public ChatController(
         ILogger<ChatController> logger,
         IConversationRepository conversations,
+        IReservationRepository reservations,
         AgentEngine agent,
         IFileStorage fileStorage,
         AgentContext context,
@@ -32,6 +34,7 @@ public class ChatController : ControllerBase
     {
         _logger = logger;
         _conversations = conversations;
+        _reservations = reservations;
         _agent = agent;
         _fileStorage = fileStorage;
         _context = context;
@@ -128,6 +131,18 @@ public class ChatController : ControllerBase
 
             await EmitPlansAsync();
 
+            // The agent requested a payment-proof upload card for this turn.
+            if (_context.RequestPaymentUpload && conversation.Channel == Channel.Web)
+            {
+                _context.RequestPaymentUpload = false;
+                var reservation = await ResolveCurrentReservationAsync(conversation, HttpContext.RequestAborted);
+                await Send("payment-upload", new
+                {
+                    reservationId = reservation?.Id,
+                    reservationRef = reservation?.ReferenceNumber,
+                });
+            }
+
             await Send("done", new { });
         }
         catch (OperationCanceledException)
@@ -173,6 +188,76 @@ public class ChatController : ControllerBase
         var storedPath = await _fileStorage.SaveAsync(stream, file.FileName, file.ContentType);
 
         return Ok(new { url = _fileStorage.ResolveUrl(storedPath) });
+    }
+
+    [HttpPost("payment-proof")]
+    [RequestSizeLimit(15 * 1024 * 1024)]
+    public async Task<IActionResult> UploadPaymentProof(
+        [FromForm] IFormFile file,
+        [FromForm] string? conversationId,
+        [FromForm] string? reservationId,
+        [FromForm] string? method,
+        [FromForm] string? amount,
+        [FromForm] string? txnRef,
+        CancellationToken ct)
+    {
+        if (file is null || file.Length == 0)
+            return BadRequest(new { error = "يرجى اختيار صورة إثبات الدفع أولاً." });
+
+        if (!Guid.TryParse(reservationId, out var reservationGuid) &&
+            Guid.TryParse(conversationId, out var conversationGuid))
+        {
+            var conversation = await _conversations.GetAsync(conversationGuid, ct);
+            var draft = RegistrationDraft.FromJson(conversation?.RegistrationDraftJson);
+            reservationGuid = draft.ReservationId ?? Guid.Empty;
+        }
+
+        var reservation = reservationGuid != Guid.Empty
+            ? await _reservations.GetAsync(reservationGuid, ct)
+            : null;
+        if (reservation is null)
+            return BadRequest(new { error = "لم يتم العثور على الحجز. يرجى إكمال خطوة الحجز أولاً." });
+
+        await using var stream = file.OpenReadStream();
+        var storedPath = await _fileStorage.SaveAsync(stream, file.FileName, file.ContentType);
+        var proofUrl = _fileStorage.ResolveUrl(storedPath);
+
+        var paymentMethod = PaymentMethod.VodafoneCash;
+        if (!string.IsNullOrWhiteSpace(method))
+        {
+            var normalized = method.Trim().ToLowerInvariant();
+            if (normalized.Contains("insta") || normalized.Contains("انستا"))
+                paymentMethod = PaymentMethod.Instapay;
+        }
+
+        decimal? amountValue = null;
+        if (decimal.TryParse(amount, System.Globalization.NumberStyles.Number,
+                System.Globalization.CultureInfo.InvariantCulture, out var parsedAmount))
+            amountValue = parsedAmount;
+
+        var proof = await _reservations.AddPaymentProofAsync(
+            reservation.Id,
+            paymentMethod,
+            amountValue,
+            proofUrl,
+            txnRef,
+            ct);
+
+        return Ok(new
+        {
+            proofId = proof.Id,
+            reservationId = reservation.Id,
+            reservationRef = reservation.ReferenceNumber,
+            url = proofUrl,
+        });
+    }
+
+    private async Task<Reservation?> ResolveCurrentReservationAsync(Conversation conversation, CancellationToken ct)
+    {
+        if (_context.CurrentReservationId is { } currentId) return await _reservations.GetAsync(currentId, ct);
+
+        var draft = RegistrationDraft.FromJson(conversation.RegistrationDraftJson);
+        return draft.ReservationId is { } draftId ? await _reservations.GetAsync(draftId, ct) : null;
     }
 
     private static bool IsPricingQuery(string message)

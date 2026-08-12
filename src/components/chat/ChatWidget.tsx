@@ -1,6 +1,15 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Check, MessageCircle, Send, Sparkles, SquarePen, X } from "lucide-react";
+import {
+  Check,
+  ImagePlus,
+  Loader2,
+  MessageCircle,
+  Send,
+  Sparkles,
+  SquarePen,
+  X,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -8,6 +17,7 @@ import { OPEN_CHAT_EVENT } from "@/lib/chat-open";
 import {
   type ChatMessage,
   type ChatSession,
+  type PaymentUploadState,
   type PlanCard,
   clearStoredConversation,
   createChatSession,
@@ -16,6 +26,7 @@ import {
   storeConversationId,
   storeMessages,
   streamMessage,
+  uploadPaymentProof,
 } from "@/lib/agent-client";
 
 function stripPricingList(text: string): string {
@@ -54,6 +65,115 @@ function PlanCardView({ plan, onSelect }: { plan: PlanCard; onSelect: (plan: Pla
       >
         اشترك في الباقة
       </Button>
+    </div>
+  );
+}
+
+function PaymentUploadCard({
+  payment,
+  conversationId,
+  onStateChange,
+}: {
+  payment: PaymentUploadState;
+  conversationId: string | null;
+  onStateChange: (next: PaymentUploadState) => void;
+}) {
+  const [file, setFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+
+  function pickFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const picked = e.target.files?.[0];
+    if (!picked) return;
+    setFile(picked);
+    setPreview(URL.createObjectURL(picked));
+  }
+
+  function submit() {
+    if (!file || !conversationId || payment.status === "uploading") return;
+    onStateChange({ ...payment, status: "uploading", error: undefined });
+    void uploadPaymentProof({
+      file,
+      conversationId,
+      reservationId: payment.reservationId,
+    })
+      .then((result) => {
+        onStateChange({ ...payment, status: "done", proofUrl: result.url });
+      })
+      .catch((err) => {
+        onStateChange({
+          ...payment,
+          status: "error",
+          error: err instanceof Error ? err.message : "تعذر حفظ إثبات الدفع. حاول مرة أخرى.",
+        });
+      });
+  }
+
+  return (
+    <div className="rounded-2xl border border-border bg-background p-4 shadow-[var(--shadow-card)]">
+      {payment.status === "done" ? (
+        <div className="flex flex-col items-center gap-3 py-2 text-center">
+          <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-green-100 text-green-700">
+            <Check className="h-5 w-5" />
+          </span>
+          <div className="text-sm font-semibold">تم استلام إثبات الدفع بنجاح</div>
+          <div className="text-xs text-muted-foreground">
+            سيتم مراجعة الدفع وتفعيل اشتراكك يدويًا بواسطة المسؤول.
+            {payment.reservationRef ? (
+              <span className="mt-1 block font-mono" dir="ltr">
+                المرجع: {payment.reservationRef}
+              </span>
+            ) : null}
+          </div>
+          {payment.proofUrl ? (
+            <img
+              src={payment.proofUrl}
+              alt="إثبات الدفع"
+              className="mt-1 h-32 w-full rounded-xl border border-border object-cover"
+            />
+          ) : null}
+        </div>
+      ) : (
+        <>
+          <p className="text-sm font-semibold">ارفع لقطة شاشة إثبات الدفع</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            اختر لقطة الشاشة من داخل تطبيق الدفع ثم أرسلها للمراجعة.
+          </p>
+
+          <label
+            className={`mt-3 flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed px-4 py-6 text-center transition-colors ${
+              preview ? "border-primary/50" : "border-border hover:border-primary/50"
+            }`}
+          >
+            {preview ? (
+              <img src={preview} alt="معاينة" className="max-h-40 rounded-lg object-contain" />
+            ) : (
+              <ImagePlus className="h-8 w-8 text-muted-foreground" />
+            )}
+            <span className="text-xs text-muted-foreground">
+              {file ? file.name : "اضغط لاختيار صورة من الجهاز"}
+            </span>
+            <input type="file" accept="image/*" className="hidden" onChange={pickFile} />
+          </label>
+
+          {payment.status === "error" && payment.error && (
+            <p className="mt-2 text-xs text-red-600">{payment.error}</p>
+          )}
+
+          <Button
+            type="button"
+            size="sm"
+            className="mt-3 w-full rounded-full"
+            disabled={!file || payment.status === "uploading"}
+            onClick={submit}
+          >
+            {payment.status === "uploading" ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              "إرسال إثبات الدفع"
+            )}
+          </Button>
+        </>
+      )}
     </div>
   );
 }
@@ -166,6 +286,16 @@ export function ChatWidget() {
               });
             }
           },
+          onPaymentUpload: (request) => {
+            setMessages((prev) => {
+              const updated = [...prev];
+              const lastIdx = Math.max(0, updated.length - 1);
+              const last = updated[lastIdx];
+              updated[lastIdx] = { ...last, payment: { ...request, status: "ready" } };
+              persist(updated);
+              return updated;
+            });
+          },
         },
         signal,
       );
@@ -201,6 +331,16 @@ export function ChatWidget() {
 
   function selectPlan(plan: PlanCard) {
     void sendMessage(`أريد الاشتراك في ${plan.name}`);
+  }
+
+  function updatePaymentState(index: number, next: PaymentUploadState) {
+    setMessages((prev) => {
+      const updated = [...prev];
+      const msg = updated[index];
+      updated[index] = { ...msg, payment: next };
+      persist(updated);
+      return updated;
+    });
   }
 
   function resetConversation() {
@@ -287,7 +427,9 @@ export function ChatWidget() {
                 </div>
               )}
               {messages.map((m, i) => {
-                if (m.role === "assistant" && m.text === "" && !m.plans?.length) return null;
+                if (m.role === "assistant" && m.text === "" && !m.plans?.length && !m.payment) {
+                  return null;
+                }
 
                 if (m.role === "user") {
                   return (
@@ -304,6 +446,29 @@ export function ChatWidget() {
 
                 const hasPlans = Array.isArray(m.plans) && m.plans.length > 0;
 
+                if (m.payment) {
+                  const intro = m.text.trim();
+                  return (
+                    <div key={i} className="flex justify-end">
+                      <div className="w-full max-w-[95%] space-y-3">
+                        {intro && (
+                          <div
+                            className="whitespace-pre-wrap rounded-2xl border border-border bg-background px-4 py-2.5 text-sm leading-relaxed text-foreground shadow-[var(--shadow-card)]"
+                            dir="auto"
+                          >
+                            {intro}
+                          </div>
+                        )}
+                        <PaymentUploadCard
+                          payment={m.payment}
+                          conversationId={conversationId}
+                          onStateChange={(next) => updatePaymentState(i, next)}
+                        />
+                      </div>
+                    </div>
+                  );
+                }
+
                 if (hasPlans) {
                   const intro = stripPricingList(m.text).trim();
                   return (
@@ -318,7 +483,7 @@ export function ChatWidget() {
                           </div>
                         )}
                         <div className="grid gap-3">
-                          {m.plans.map((p) => (
+                          {m.plans?.map((p) => (
                             <PlanCardView key={p.id} plan={p} onSelect={selectPlan} />
                           ))}
                         </div>

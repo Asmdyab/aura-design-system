@@ -15,10 +15,29 @@ export type PlanCard = {
   features: string[];
 };
 
+export type PaymentUploadRequest = {
+  reservationId?: string | null;
+  reservationRef?: string | null;
+};
+
+export type PaymentUploadState = PaymentUploadRequest & {
+  status: "ready" | "uploading" | "done" | "error";
+  proofUrl?: string;
+  error?: string;
+};
+
 export type ChatMessage = {
   role: ChatRole;
   text: string;
   plans?: PlanCard[];
+  payment?: PaymentUploadState;
+};
+
+export type PaymentProofResult = {
+  proofId: string;
+  reservationId: string;
+  reservationRef: string;
+  url: string;
 };
 
 export type ChatSession = {
@@ -64,6 +83,7 @@ export async function streamMessage(
     onMeta?: (conversationId: string) => void;
     onDelta?: (text: string) => void;
     onPlans?: (plans: PlanCard[]) => void;
+    onPaymentUpload?: (request: PaymentUploadRequest) => void;
   },
   signal?: AbortSignal,
 ): Promise<string> {
@@ -104,6 +124,9 @@ export async function streamMessage(
       } else if (block.event === "plans") {
         const plans = JSON.parse(block.data) as PlanCard[];
         if (Array.isArray(plans)) events.onPlans?.(plans);
+      } else if (block.event === "payment-upload") {
+        const request = JSON.parse(block.data) as PaymentUploadRequest;
+        events.onPaymentUpload?.(request);
       } else if (block.event === "error") {
         const err = JSON.parse(block.data) as { error?: string };
         serverError = err.error ?? "تعذر الرد حالياً.";
@@ -123,6 +146,39 @@ export function getStoredConversationId(): string | null {
 export function storeConversationId(conversationId: string): void {
   if (typeof localStorage === "undefined") return;
   localStorage.setItem(SESSION_KEY, conversationId);
+}
+
+export async function uploadPaymentProof(opts: {
+  file: File;
+  conversationId: string;
+  reservationId?: string | null;
+  method?: string;
+  amount?: string;
+  txnRef?: string;
+}): Promise<PaymentProofResult> {
+  const form = new FormData();
+  form.append("file", opts.file);
+  form.append("conversationId", opts.conversationId);
+  if (opts.reservationId) form.append("reservationId", opts.reservationId);
+  if (opts.method) form.append("method", opts.method);
+  if (opts.amount) form.append("amount", opts.amount);
+  if (opts.txnRef) form.append("txnRef", opts.txnRef);
+
+  const res = await fetch(`${API_BASE}/api/chat/payment-proof`, {
+    method: "POST",
+    body: form,
+  });
+  if (!res.ok) {
+    let message = "تعذر حفظ إثبات الدفع. حاول مرة أخرى.";
+    try {
+      const body = (await res.json()) as { error?: string };
+      if (body.error) message = body.error;
+    } catch {
+      /* ignore parse errors */
+    }
+    throw new Error(message);
+  }
+  return (await res.json()) as PaymentProofResult;
 }
 
 export function getStoredMessages(): ChatMessage[] {
