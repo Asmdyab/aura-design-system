@@ -164,7 +164,7 @@ function DashboardLayout() {
                 onClick={() => setSidebarOpen(false)}
                 activeProps={{ className: navActiveClass }}
                 inactiveProps={{ className: navInactiveClass }}
-                activeOptions={item.exact ? { exact: true } : { includes: item.path }}
+                activeOptions={item.exact ? { exact: true } : undefined}
                 className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors"
               >
                 <Icon className="h-5 w-5" />
