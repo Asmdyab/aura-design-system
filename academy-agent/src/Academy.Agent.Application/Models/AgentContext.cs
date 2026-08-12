@@ -6,4 +6,5 @@ public sealed class AgentContext
 {
     public Conversation? CurrentConversation { get; set; }
     public Guid? CurrentReservationId { get; set; }
+    public IReadOnlyList<AcademyProgram>? CurrentPlans { get; set; }
 }

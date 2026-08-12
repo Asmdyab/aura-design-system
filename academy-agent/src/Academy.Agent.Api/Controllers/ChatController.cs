@@ -16,17 +16,26 @@ public class ChatController : ControllerBase
     private readonly IConversationRepository _conversations;
     private readonly AgentEngine _agent;
     private readonly IFileStorage _fileStorage;
+    private readonly AgentContext _context;
+    private readonly IAcademyRepository _academy;
+
+    private static readonly System.Text.Json.JsonSerializerOptions SseJsonOptions =
+        new(System.Text.Json.JsonSerializerDefaults.Web);
 
     public ChatController(
         ILogger<ChatController> logger,
         IConversationRepository conversations,
         AgentEngine agent,
-        IFileStorage fileStorage)
+        IFileStorage fileStorage,
+        AgentContext context,
+        IAcademyRepository academy)
     {
         _logger = logger;
         _conversations = conversations;
         _agent = agent;
         _fileStorage = fileStorage;
+        _context = context;
+        _academy = academy;
     }
 
     [HttpPost("session")]
@@ -82,7 +91,7 @@ public class ChatController : ControllerBase
 
         async Task Send(string name, object payload)
         {
-            var json = JsonSerializer.Serialize(payload);
+            var json = JsonSerializer.Serialize(payload, SseJsonOptions);
             await Response.WriteAsync($"event: {name}\ndata: {json}\n\n", HttpContext.RequestAborted);
             await Response.Body.FlushAsync(HttpContext.RequestAborted);
         }
@@ -91,10 +100,33 @@ public class ChatController : ControllerBase
         {
             await Send("meta", new { conversationId = conversation.Id });
 
+            IReadOnlyList<AcademyProgram>? plans = null;
+            var plansEmitted = false;
+
+            async Task EmitPlansAsync()
+            {
+                if (plansEmitted || plans is not { Count: > 0 }) return;
+                await Send("plans", BuildPlanCards(plans));
+                plansEmitted = true;
+            }
+
+            // The pricing tool runs while the reply is streaming, so check after each
+            // delta and emit the cards as soon as they are available — the frontend then
+            // renders cards directly instead of plain text first.
             await foreach (var delta in _agent.StreamReplyAsync(conversation, message, HttpContext.RequestAborted))
             {
+                plans ??= _context.CurrentPlans;
+                await EmitPlansAsync();
                 await Send("delta", new { text = delta });
             }
+
+            // Backstop: if the model answered a pricing question without invoking the tool.
+            if (plans is not { Count: > 0 } && conversation.Channel == Channel.Web && IsPricingQuery(message))
+            {
+                plans = await _academy.GetActiveProgramsAsync(HttpContext.RequestAborted);
+            }
+
+            await EmitPlansAsync();
 
             await Send("done", new { });
         }
@@ -142,4 +174,26 @@ public class ChatController : ControllerBase
 
         return Ok(new { url = _fileStorage.ResolveUrl(storedPath) });
     }
+
+    private static bool IsPricingQuery(string message)
+    {
+        var text = message.Trim().ToLowerInvariant();
+        return new[]
+        {
+            "سعر", "أسعار", "ثمن", "باقة", "باقات", "خطة", "خطط", "تفاصيل الخطط",
+            "برنامج", "برامج", "اشتراك", "اشترك", "تكلفة", "تكلف", "حصص", "عروض", "خصم",
+        }.Any(keyword => text.IndexOf(keyword, StringComparison.Ordinal) >= 0);
+    }
+
+    private static List<PlanCardDto> BuildPlanCards(IReadOnlyList<AcademyProgram> plans) =>
+        plans.Select(p => new PlanCardDto
+        {
+            Id = p.Id,
+            Name = p.Name,
+            Category = string.IsNullOrWhiteSpace(p.Category) ? "أخرى" : p.Category.Trim(),
+            Notes = p.Notes,
+            Price = p.Price,
+            Period = p.Period,
+            Features = p.Features,
+        }).ToList();
 }

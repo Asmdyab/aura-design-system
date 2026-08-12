@@ -5,9 +5,20 @@ const MESSAGES_KEY = "academy-agent-messages";
 
 export type ChatRole = "user" | "assistant";
 
+export type PlanCard = {
+  id: number;
+  name: string;
+  category: string;
+  notes?: string | null;
+  price: number;
+  period: string;
+  features: string[];
+};
+
 export type ChatMessage = {
   role: ChatRole;
   text: string;
+  plans?: PlanCard[];
 };
 
 export type ChatSession = {
@@ -49,7 +60,11 @@ export async function createChatSession(
 export async function streamMessage(
   conversationId: string,
   message: string,
-  events: { onMeta?: (conversationId: string) => void; onDelta?: (text: string) => void },
+  events: {
+    onMeta?: (conversationId: string) => void;
+    onDelta?: (text: string) => void;
+    onPlans?: (plans: PlanCard[]) => void;
+  },
   signal?: AbortSignal,
 ): Promise<string> {
   const res = await fetch(`${API_BASE}/api/chat/messages`, {
@@ -86,6 +101,9 @@ export async function streamMessage(
       } else if (block.event === "meta") {
         const meta = JSON.parse(block.data) as { conversationId?: string };
         if (meta.conversationId) events.onMeta?.(meta.conversationId);
+      } else if (block.event === "plans") {
+        const plans = JSON.parse(block.data) as PlanCard[];
+        if (Array.isArray(plans)) events.onPlans?.(plans);
       } else if (block.event === "error") {
         const err = JSON.parse(block.data) as { error?: string };
         serverError = err.error ?? "تعذر الرد حالياً.";

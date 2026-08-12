@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Text;
+using Academy.Agent.Application.Models;
 using Academy.Agent.Application.Options;
 using Academy.Agent.Application.Ports;
 using Microsoft.Extensions.Options;
@@ -11,11 +12,16 @@ public sealed class AcademyPlugin
 {
     private readonly IAcademyRepository _academy;
     private readonly PaymentInstructionsOptions _paymentInstructions;
+    private readonly AgentContext _context;
 
-    public AcademyPlugin(IAcademyRepository academy, IOptions<PaymentInstructionsOptions> paymentInstructions)
+    public AcademyPlugin(
+        IAcademyRepository academy,
+        IOptions<PaymentInstructionsOptions> paymentInstructions,
+        AgentContext context)
     {
         _academy = academy;
         _paymentInstructions = paymentInstructions.Value;
+        _context = context;
     }
 
     [KernelFunction("GetPricing")]
@@ -25,6 +31,7 @@ public sealed class AcademyPlugin
         var programs = await _academy.GetActiveProgramsAsync(ct);
         if (programs.Count == 0) return "لا توجد بيانات أسعار متاحة حاليًا.";
 
+        _context.CurrentPlans = programs;
         // IMPORTANT for the LLM: output is pre-formatted with one item per line.
         // Every program line starts with a bullet "•" so that it stays a separate
         // visual item even if whitespace is collapsed. Do not merge lines.
@@ -106,6 +113,8 @@ public sealed class AcademyPlugin
     {
         var programs = await _academy.GetActiveProgramsAsync(ct);
         if (programs.Count == 0) return "لا توجد برامج متاحة حاليًا.";
+
+        _context.CurrentPlans = programs;
 
         var lines = programs
             .Select(p => $"id={p.Id} | {p.Name} | {p.Category} | {p.Price.ToString("0.##")} ج.م / {p.Period}")

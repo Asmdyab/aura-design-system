@@ -1,14 +1,14 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { MessageCircle, Send, Sparkles, SquarePen, X } from "lucide-react";
+import { Check, MessageCircle, Send, Sparkles, SquarePen, X } from "lucide-react";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { OPEN_CHAT_EVENT } from "@/lib/chat-open";
 import {
   type ChatMessage,
   type ChatSession,
+  type PlanCard,
   clearStoredConversation,
   createChatSession,
   getStoredConversationId,
@@ -17,6 +17,46 @@ import {
   storeMessages,
   streamMessage,
 } from "@/lib/agent-client";
+
+function stripPricingList(text: string): string {
+  const idx = text.search(/[•◼]/);
+  return idx === -1 ? text : text.slice(0, idx);
+}
+
+function PlanCardView({ plan, onSelect }: { plan: PlanCard; onSelect: (plan: PlanCard) => void }) {
+  const features = plan.features ?? [];
+  return (
+    <div className="rounded-2xl border border-border bg-background p-4 shadow-[var(--shadow-card)]">
+      {plan.category && <div className="text-xs text-muted-foreground">{plan.category}</div>}
+      <p className="mt-1 text-sm font-semibold leading-snug">{plan.name}</p>
+      <div className="mt-2 flex items-baseline gap-1">
+        <span className="text-2xl font-semibold tracking-tight">
+          {plan.price.toLocaleString("ar-EG")}
+        </span>
+        <span className="text-xs text-muted-foreground">ج.م / {plan.period || "الشهر"}</span>
+      </div>
+      {features.length > 0 && (
+        <ul className="mt-3 space-y-1.5">
+          {features.map((f) => (
+            <li key={f} className="flex items-start gap-2 text-xs text-muted-foreground">
+              <Check className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+              <span>{f}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+      {plan.notes && <p className="mt-2 text-xs text-muted-foreground">{plan.notes}</p>}
+      <Button
+        type="button"
+        size="sm"
+        onClick={() => onSelect(plan)}
+        className="mt-4 w-full rounded-full"
+      >
+        اشترك في الباقة
+      </Button>
+    </div>
+  );
+}
 
 export function ChatWidget() {
   const [open, setOpen] = useState(false);
@@ -36,6 +76,7 @@ export function ChatWidget() {
   const controllerRef = useRef<AbortController | null>(null);
   const bottomSentinelRef = useRef<HTMLDivElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const plansShownRef = useRef(messages.some((m) => m.plans?.length));
 
   const persist = useCallback((next: ChatMessage[]) => {
     storeMessages(next);
@@ -68,8 +109,7 @@ export function ChatWidget() {
     return () => controllerRef.current?.abort();
   }, []);
 
-  async function send() {
-    const text = input.trim();
+  async function sendMessage(text: string) {
     if (!text || busy) return;
 
     let session: ChatSession | null;
@@ -113,13 +153,28 @@ export function ChatWidget() {
               return updated;
             });
           },
+          onPlans: (plans) => {
+            if (!plansShownRef.current) {
+              plansShownRef.current = true;
+              setMessages((prev) => {
+                const updated = [...prev];
+                const lastIdx = updated.length - 1;
+                const last = updated[lastIdx];
+                updated[lastIdx] = { ...last, plans };
+                persist(updated);
+                return updated;
+              });
+            }
+          },
         },
         signal,
       );
 
       if (!full) {
         setMessages((prev) => {
-          const updated = prev.filter((m) => !(m.role === "assistant" && m.text === ""));
+          const updated = prev.filter(
+            (m) => !(m.role === "assistant" && m.text === "" && m.plans === undefined),
+          );
           persist(updated);
           return updated;
         });
@@ -128,7 +183,9 @@ export function ChatWidget() {
       if (error instanceof DOMException && error.name === "AbortError") return;
       toast.error(error instanceof Error ? error.message : "تعذر الرد الآن. حاول مرة أخرى.");
       setMessages((prev) => {
-        const updated = prev.filter((m) => !(m.role === "assistant" && m.text === ""));
+        const updated = prev.filter(
+          (m) => !(m.role === "assistant" && m.text === "" && m.plans === undefined),
+        );
         persist(updated);
         return updated;
       });
@@ -138,12 +195,21 @@ export function ChatWidget() {
     }
   }
 
+  async function send() {
+    await sendMessage(input.trim());
+  }
+
+  function selectPlan(plan: PlanCard) {
+    void sendMessage(`أريد الاشتراك في ${plan.name}`);
+  }
+
   function resetConversation() {
     controllerRef.current?.abort();
     controllerRef.current = null;
     setBusy(false);
     setMessages([]);
     setConversationId(null);
+    plansShownRef.current = false;
     clearStoredConversation();
   }
 
@@ -221,22 +287,53 @@ export function ChatWidget() {
                 </div>
               )}
               {messages.map((m, i) => {
-                if (m.role === "assistant" && m.text === "") return null;
+                if (m.role === "assistant" && m.text === "" && !m.plans?.length) return null;
+
+                if (m.role === "user") {
+                  return (
+                    <div key={i} className="flex justify-start">
+                      <div
+                        className="max-w-[85%] whitespace-pre-wrap rounded-2xl bg-foreground px-4 py-2.5 text-sm leading-relaxed text-background shadow-[var(--shadow-card)]"
+                        dir="auto"
+                      >
+                        {m.text}
+                      </div>
+                    </div>
+                  );
+                }
+
+                const hasPlans = Array.isArray(m.plans) && m.plans.length > 0;
+
+                if (hasPlans) {
+                  const intro = stripPricingList(m.text).trim();
+                  return (
+                    <div key={i} className="flex justify-end">
+                      <div className="w-full max-w-[95%] space-y-3">
+                        {intro && (
+                          <div
+                            className="whitespace-pre-wrap rounded-2xl border border-border bg-background px-4 py-2.5 text-sm leading-relaxed text-foreground shadow-[var(--shadow-card)]"
+                            dir="auto"
+                          >
+                            {intro}
+                          </div>
+                        )}
+                        <div className="grid gap-3">
+                          {m.plans.map((p) => (
+                            <PlanCardView key={p.id} plan={p} onSelect={selectPlan} />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+
                 return (
-                  <div
-                    key={i}
-                    className={cn("flex", m.role === "user" ? "justify-start" : "justify-end")}
-                  >
+                  <div key={i} className="flex justify-end">
                     <div
-                      className={cn(
-                        "max-w-[85%] whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-sm leading-relaxed shadow-[var(--shadow-card)]",
-                        m.role === "user"
-                          ? "bg-foreground text-background"
-                          : "border border-border bg-background text-foreground",
-                      )}
+                      className="max-w-[85%] whitespace-pre-wrap rounded-2xl border border-border bg-background px-4 py-2.5 text-sm leading-relaxed text-foreground shadow-[var(--shadow-card)]"
                       dir="auto"
                     >
-                      {m.role === "assistant" && m.text === "" ? (
+                      {m.text === "" ? (
                         <span className="inline-flex gap-1">
                           {[0, 1, 2].map((d) => (
                             <motion.span
